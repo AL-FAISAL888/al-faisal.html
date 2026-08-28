@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Faisal Public High School Management System</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eff6ff,#f5f3ff 45%,#ecfeff)}
+*{box-sizing:border-box}.shadow-card{box-shadow:0 8px 30px rgba(59,130,246,.10)}
+.modal-bg{background:rgba(15,23,42,.55)}
+@media print{.no-print{display:none!important}}
+</style>
+
+<style>
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#eff6ff,#f5f3ff 45%,#ecfeff)}
+.auth-card{width:100%;max-width:440px;background:#fff;border-radius:24px;padding:30px;box-shadow:0 12px 40px rgba(15,23,42,.15)}
+.auth-logo{text-align:center;font-size:44px;margin-bottom:8px}
+.auth-card h1{text-align:center;margin:0;font-size:24px}.auth-sub{text-align:center;color:#64748b;margin:8px 0 24px}
+.auth-card label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+.auth-card input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px}
+.auth-btn{width:100%;margin-top:20px;padding:13px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+.auth-switch{text-align:center;margin-top:18px;color:#475569}.auth-switch button{border:0;background:none;color:#2563eb;font-weight:700;cursor:pointer}
+.auth-msg{margin-top:12px;text-align:center;font-size:14px;min-height:20px}.auth-note{margin-top:18px;padding:12px;background:#f8fafc;border-radius:10px;font-size:12px;color:#64748b}
+</style>
+
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div id="auth-root">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">🎓</div>
+      <h1>Faisal Public High School</h1>
+      <p class="auth-sub" id="auth-sub">Register to create your account</p>
+
+      <form id="register-form">
+        <label>Full Name</label>
+        <input id="reg-name" type="text" required placeholder="Enter your name">
+        <label>Email Address</label>
+        <input id="reg-email" type="email" required placeholder="Enter your email">
+        <label>Password</label>
+        <input id="reg-password" type="password" required minlength="4" placeholder="Create password">
+        <button class="auth-btn" type="submit">Create Account & Open System</button>
+        <div class="auth-switch">Already registered? <button type="button" onclick="showLogin()">Login</button></div>
+      </form>
+
+      <form id="login-form" style="display:none">
+        <label>Email Address</label>
+        <input id="login-email" type="email" required placeholder="Enter registered email">
+        <label>Password</label>
+        <input id="login-password" type="password" required placeholder="Enter password">
+        <button class="auth-btn" type="submit">Login & Open System</button>
+        <div class="auth-switch">New user? <button type="button" onclick="showRegister()">Register</button></div>
+      </form>
+      <div class="auth-msg" id="auth-msg"></div>
+      <div class="auth-note">Offline account mode: your registration and login session are saved only on this device using Local Storage.</div>
+    </div>
+  </div>
+</div>
+<div id="root" style="display:none"></div>
+<script>
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBP3lw_qB_jruA0yJCqHlL8DPt10M6eYL0",
+  authDomain: "al-faisal-education-system.firebaseapp.com",
+  projectId: "al-faisal-education-system",
+  storageBucket: "al-faisal-education-system.firebasestorage.app",
+  messagingSenderId: "494186473118",
+  appId: "1:494186473118:web:f7467d2a510a2dfdf57d8f",
+  measurementId: "G-LL319P551T"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const SERVER_TS = firebase.firestore.FieldValue.serverTimestamp;
+
+function openSystem(){
+  document.getElementById("auth-root").style.display="none";
+  document.getElementById("root").style.display="block";
+}
+function showAuth(){
+  document.getElementById("auth-root").style.display="block";
+  document.getElementById("root").style.display="none";
+}
+function showLogin(){
+  document.getElementById("register-form").style.display="none";
+  document.getElementById("login-form").style.display="block";
+  document.getElementById("auth-sub").textContent="Login with your registered email and password";
+  document.getElementById("auth-msg").textContent="";
+}
+function showRegister(){
+  document.getElementById("login-form").style.display="none";
+  document.getElementById("register-form").style.display="block";
+  document.getElementById("auth-sub").textContent="Register to create your account";
+  document.getElementById("auth-msg").textContent="";
+}
+function authErrorText(err){
+  const map={
+    "auth/email-already-in-use":"This email is already registered. Please login.",
+    "auth/invalid-email":"Please enter a valid email address.",
+    "auth/weak-password":"Password should be at least 6 characters.",
+    "auth/invalid-credential":"Incorrect email or password.",
+    "auth/user-not-found":"Incorrect email or password.",
+    "auth/wrong-password":"Incorrect email or password."
+  };
+  return map[err?.code]||err?.message||"Something went wrong. Please try again.";
+}
+
+document.getElementById("register-form").addEventListener("submit",async function(e){
+  e.preventDefault();
+  const name=document.getElementById("reg-name").value.trim();
+  const email=document.getElementById("reg-email").value.trim().toLowerCase();
+  const password=document.getElementById("reg-password").value;
+  const msg=document.getElementById("auth-msg");
+  try{
+    msg.style.color="#2563eb"; msg.textContent="Creating Firebase account...";
+    const result=await auth.createUserWithEmailAndPassword(email,password);
+    await db.collection("users").doc(result.user.uid).set({name,email,createdAt:SERVER_TS()},{merge:true});
+    msg.style.color="#16a34a"; msg.textContent="Registration successful. Opening system...";
+  }catch(err){msg.style.color="#dc2626";msg.textContent=authErrorText(err)}
+});
+
+document.getElementById("login-form").addEventListener("submit",async function(e){
+  e.preventDefault();
+  const email=document.getElementById("login-email").value.trim().toLowerCase();
+  const password=document.getElementById("login-password").value;
+  const msg=document.getElementById("auth-msg");
+  try{
+    msg.style.color="#2563eb"; msg.textContent="Signing in...";
+    await auth.signInWithEmailAndPassword(email,password);
+    msg.style.color="#16a34a"; msg.textContent="Login successful. Opening system...";
+  }catch(err){msg.style.color="#dc2626";msg.textContent=authErrorText(err)}
+});
+
+auth.onAuthStateChanged(user=>{ if(user) openSystem(); else showAuth(); });
+
+// Firestore helpers. All school data is stored in one shared school database.
+const CLOUD_COLLECTIONS={students:"students",fees:"fees",expenses:"expenses",salaries:"salaries",teachers:"teachers",copies:"copies"};
+const CLOUD_ROOT="schoolData";
+function cloudCollection(name){return db.collection(CLOUD_ROOT).doc("main").collection(CLOUD_COLLECTIONS[name]||name)}
+async function cloudLoad(name){
+  const snap=await cloudCollection(name).get();
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function cloudSync(name,rows){
+  const ref=cloudCollection(name);
+  const existing=await ref.get();
+  const batch=db.batch();
+  const wanted=new Set((rows||[]).map(x=>String(x.id)));
+  existing.docs.forEach(d=>{if(!wanted.has(d.id))batch.delete(d.ref)});
+  (rows||[]).forEach(row=>{
+    const id=String(row.id||Date.now());
+    const data={...row,id};
+    batch.set(ref.doc(id),data,{merge:false});
+  });
+  if(existing.size||(rows||[]).length) await batch.commit();
+}
+async function cloudLoadSettings(){
+  const d=await db.collection(CLOUD_ROOT).doc("settings").get();
+  return d.exists?d.data():{};
+}
+async function cloudSaveSettings(data){
+  await db.collection(CLOUD_ROOT).doc("settings").set({...data,updatedAt:SERVER_TS()},{merge:true});
+}
+</script>
+<script type="text/babel">
+const {useState,useEffect,useMemo}=React;
+const K={students:"students",fees:"fees",expenses:"expenses",salaries:"salaries",teachers:"teachers",copies:"copies"};
+const load=()=>[]; // Firebase is the primary data store
+const save=()=>{};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const today=()=>{let d=new Date(),o=d.getTimezoneOffset();return new Date(d.getTime()-o*60000).toISOString().slice(0,10)};
+const thisMonth=()=>today().slice(0,7);
+const money=v=>"Rs. "+Number(v||0).toLocaleString("en-PK");
+const dateFmt=v=>v?new Date(v+"T00:00:00").toLocaleDateString("en-PK",{year:"numeric",month:"short",day:"numeric"}):"-";
+const monthFmt=v=>{if(!v)return"-";let [y,m]=v.split("-");return new Date(+y,+m-1,1).toLocaleDateString("en-US",{month:"long",year:"numeric"})};
+
+function Icon({n}){return <span className="inline-flex items-center justify-center text-lg">{({dashboard:"📊",students:"🎓",fees:"💰",expenses:"💸",salary:"💵",teacher:"👨‍🏫",plus:"＋",edit:"✏️",del:"🗑️",search:"🔎",menu:"☰",close:"✕",save:"💾",warn:"⚠️",chart:"📈"}[n]||"•")}</span>}
+
+function App(){
+ const [students,setStudents]=useState([]),[fees,setFees]=useState([]),[expenses,setExpenses]=useState([]),[salaries,setSalaries]=useState([]),[teachers,setTeachers]=useState([]),[copies,setCopies]=useState([]);
+ const [tab,setTab]=useState("dashboard"),[mobile,setMobile]=useState(false),[feeMonth,setFeeMonth]=useState(thisMonth()),[reportPeriod,setReportPeriod]=useState("Monthly"),[reportDate,setReportDate]=useState(today());
+ const [schoolName,setSchoolName]=useState("Faisal Public High School");
+ const [modal,setModal]=useState(null),[editing,setEditing]=useState(null),[search,setSearch]=useState("");
+ const [cloudReady,setCloudReady]=useState(false),[cloudError,setCloudError]=useState("");
+ useEffect(()=>{let alive=true;(async()=>{try{
+   const [st,fe,ex,sa,te,co,settings]=await Promise.all([cloudLoad("students"),cloudLoad("fees"),cloudLoad("expenses"),cloudLoad("salaries"),cloudLoad("teachers"),cloudLoad("copies"),cloudLoadSettings()]);
+   if(!alive)return;setStudents(st);setFees(fe);setExpenses(ex);setSalaries(sa);setTeachers(te);setCopies(co);if(settings.schoolName)setSchoolName(settings.schoolName);setCloudReady(true);
+ }catch(err){console.error(err);if(alive){setCloudError("Firebase data could not be loaded. Check Firestore rules and internet connection.");}}})();return()=>{alive=false}},[]);
+ useEffect(()=>{if(cloudReady)cloudSaveSettings({schoolName}).catch(err=>{console.error(err);setCloudError("School settings could not be saved to Firebase.")})},[schoolName,cloudReady]);
+ useEffect(()=>{if(cloudReady)cloudSync("students",students).catch(console.error)},[students,cloudReady]);
+ useEffect(()=>{if(cloudReady)cloudSync("fees",fees).catch(console.error)},[fees,cloudReady]);
+ useEffect(()=>{if(cloudReady)cloudSync("expenses",expenses).catch(console.error)},[expenses,cloudReady]);
+ useEffect(()=>{if(cloudReady)cloudSync("salaries",salaries).catch(console.error)},[salaries,cloudReady]);
+ useEffect(()=>{if(cloudReady)cloudSync("teachers",teachers).catch(console.error)},[teachers,cloudReady]);
+ useEffect(()=>{if(cloudReady)cloudSync("copies",copies).catch(console.error)},[copies,cloudReady]);
+
+ const m=thisMonth(),td=today();
+ const expectedFee=students.filter(x=>x.status!=="Inactive").reduce((a,x)=>a+(+x.monthlyFee||0),0); const monthlyFees=fees.filter(x=>(x.month||x.date?.slice(0,7))===m&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0); const paidFee=monthlyFees; const remainingFee=Math.max(0,expectedFee-paidFee);
+ const todayFees=fees.filter(x=>x.date===td&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0);
+ const monthlySalary=salaries.filter(x=>x.month===m).reduce((a,x)=>a+ +x.amount,0);
+ const monthlyExpense=expenses.filter(x=>(x.month||x.date?.slice(0,7))===m).reduce((a,x)=>a+ +x.amount,0);
+ const net=monthlyFees-monthlyExpense;
+ const activeTeachers=teachers.filter(t=>t.status!=="Inactive").length;
+ const activeStudents=students.filter(s=>s.status!=="Inactive").length;
+ const defaulters=students.filter(s=>s.status!=="Inactive"&&!fees.some(f=>String(f.studentId)===String(s.id)&&(f.month||f.date?.slice(0,7))===m&&f.paymentStatus==="Paid"));
+
+ function nav(t){setTab(t);setMobile(false);setSearch("")}
+ function close(){setModal(null);setEditing(null)}
+ function submitStudent(d){editing?setStudents(a=>a.map(x=>x.id===editing.id?{...d,id:x.id}:x)):setStudents(a=>[...a,{...d,id:uid()}]);close()}
+ function submitTeacher(d){
+   if(editing)setTeachers(a=>a.map(x=>x.id===editing.id?{...d,id:x.id}:x));
+   else setTeachers(a=>[...a,{...d,id:uid()}]); close()
+ }
+ function submitFee(d){let st=students.find(x=>String(x.id)===String(d.studentId));d.studentName=st?.name||"Unknown";editing?setFees(a=>a.map(x=>x.id===editing.id?{...d,id:x.id}:x)):setFees(a=>[...a,{...d,id:uid()}]);close()}
+ function submitExpense(d){editing?setExpenses(a=>a.map(x=>x.id===editing.id?{...d,id:x.id,autoSalaryId:x.autoSalaryId||null}:x)):setExpenses(a=>[...a,{...d,id:uid(),autoSalaryId:null}]);close()}
+ function submitSalary(d){
+   if(editing){
+     setSalaries(a=>a.map(x=>x.id===editing.id?{...d,id:x.id}:x));
+     setExpenses(a=>a.map(e=>e.autoSalaryId===editing.id?{...e,name:`Teacher Salary - ${d.teacherName} - ${monthFmt(d.month)}`,amount:+d.amount,date:d.paymentDate,month:d.month,notes:d.notes||""}:e));
+   }else{
+     let id=uid();setSalaries(a=>[...a,{...d,id}]);
+     setExpenses(a=>[...a,{id:uid(),name:`Teacher Salary - ${d.teacherName} - ${monthFmt(d.month)}`,amount:+d.amount,date:d.paymentDate,month:d.month,notes:d.notes||"",autoSalaryId:id,expenseType:"Teacher Salary"}]);
+   } close()
+ }
+ function del(type,id){
+   if(!confirm("Delete this record?"))return;
+   if(type==="student")setStudents(a=>a.filter(x=>x.id!==id));
+   if(type==="teacher")setTeachers(a=>a.filter(x=>x.id!==id));
+   if(type==="fee")setFees(a=>a.filter(x=>x.id!==id));
+   if(type==="expense"){let e=expenses.find(x=>x.id===id);if(e?.autoSalaryId){alert("Delete this expense from Teacher Salary.");return}setExpenses(a=>a.filter(x=>x.id!==id))}
+   if(type==="salary"){setSalaries(a=>a.filter(x=>x.id!==id));setExpenses(a=>a.filter(x=>x.autoSalaryId!==id))}
+   if(type==="copy")setCopies(a=>a.filter(x=>x.id!==id));
+ }
+ const navs=[["dashboard","Dashboard","dashboard"],["students","Students","students"],["fees","Fee Collection","fees"],["expenses","Expenses","expenses"],["salary","Teacher Salary","salary"],["teachers","Teacher Service","teacher"],["classes","Classes","students"],["reports","Reports","chart"],["copies","Copies","fees"],["settings","Settings","settings"]];
+ return <div className="min-h-screen">
+  {mobile&&<div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={()=>setMobile(false)}/>}
+  <aside className={`fixed z-50 inset-y-0 left-0 w-72 bg-slate-950 text-white flex flex-col transition-transform ${mobile?"translate-x-0":"-translate-x-full"} lg:translate-x-0`}>
+   <div className="p-5 border-b border-slate-800 flex justify-between shrink-0"><div><div className="text-3xl">🎓</div><b className="text-lg">{schoolName}</b></div><button className="lg:hidden" onClick={()=>setMobile(false)}><Icon n="close"/></button></div>
+   <nav className="p-4 space-y-2 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">{navs.map(([id,label,ic])=><button key={id} onClick={()=>nav(id)} className={`w-full text-left p-3 rounded-xl flex gap-3 items-center ${tab===id?"bg-blue-600":"hover:bg-slate-800 text-slate-300"}`}><Icon n={ic}/>{label}</button>)}</nav>
+   <div className="w-full p-4 shrink-0"><div className="bg-slate-900 rounded-xl p-3 text-sm text-green-400">☁️ Firebase Cloud Connected</div></div>
+  </aside>
+  <main className="lg:ml-72">
+   <header className="sticky top-0 z-30 bg-white border-b p-4 flex items-center gap-3"><button className="lg:hidden" onClick={()=>setMobile(true)}><Icon n="menu"/></button><div><h1 className="text-xl font-bold">{navs.find(x=>x[0]===tab)?.[1]}</h1><p className="text-xs text-slate-500">{schoolName} Management System</p></div></header>
+   <div className="p-4 sm:p-6">
+    {!cloudReady&&!cloudError&&<div className="mb-4 p-3 rounded-xl bg-blue-50 text-blue-700 font-semibold">☁️ Connecting to Firebase...</div>}
+    {cloudError&&<div className="mb-4 p-3 rounded-xl bg-red-50 text-red-700 font-semibold">⚠️ {cloudError}</div>}
+    {cloudReady&&<div className="mb-4 p-3 rounded-xl bg-green-50 text-green-700 text-sm font-semibold">✓ Firebase Authentication + Firestore connected</div>}
+    {tab==="dashboard"&&<Dashboard students={students} teachers={teachers} fees={fees} expenses={expenses} salaries={salaries} copies={copies} monthlyFees={monthlyFees} paidFee={paidFee} remainingFee={remainingFee} expectedFee={expectedFee} todayFees={todayFees} monthlySalary={monthlySalary} monthlyExpense={monthlyExpense} net={net} activeStudents={activeStudents} activeTeachers={activeTeachers} defaulters={defaulters} month={m} nav={nav}/>}
+
+
+    {tab==="copies"&&<Copies students={students} copies={copies} setCopies={setCopies} del={del}/>}
+    {tab==="settings"&&<div className="max-w-2xl bg-white rounded-2xl p-6 shadow-card border border-slate-200"><h2 className="text-2xl font-extrabold mb-2">School Settings</h2><p className="text-slate-500 mb-5">Change your school name. The new name will be saved to Firebase Firestore.</p><label className="block text-sm font-semibold mb-2">School Name</label><input className="w-full border rounded-xl p-3" value={schoolName} onChange={e=>setSchoolName(e.target.value)} placeholder="Enter school name"/><button className="mt-5 px-5 py-3 rounded-xl bg-blue-600 text-white font-bold" onClick={()=>{cloudSaveSettings({schoolName}).then(()=>alert("School name saved to Firebase successfully!")).catch(()=>alert("Could not save school name to Firebase."))}}>Save Changes</button></div>}
+    {tab==="students"&&<Records title={`Students (${students.length})`} desc="Manage student records." add="Add Student" search={search} setSearch={setSearch} rows={students.filter(x=>`${x.name} ${x.fatherName} ${x.className} ${x.rollNo}`.toLowerCase().includes(search.toLowerCase()))} cols={["Student","Father","Class","Roll No.","Monthly Fee","Status"]} render={x=><>{<td className="p-3 font-semibold">{x.name}</td>}<td className="p-3">{x.fatherName||"-"}</td><td className="p-3">{x.className||"-"}</td><td className="p-3">{x.rollNo||"-"}</td><td className="p-3 text-right">{money(x.monthlyFee)}</td><td className="p-3 text-center">{x.status||"Active"}</td></>} onAdd={()=>setModal("student")} onEdit={x=>{setEditing(x);setModal("student")}} onDelete={x=>del("student",x.id)}/>}
+    {tab==="teachers"&&<Records title={`Teacher Service (${teachers.length})`} desc="Manage teacher service and employment records." add="Add Teacher" search={search} setSearch={setSearch} rows={teachers.filter(x=>`${x.name} ${x.subject} ${x.qualification} ${x.phone}`.toLowerCase().includes(search.toLowerCase()))} cols={["Teacher","Subject","Qualification","Joining Date","Monthly Salary","Status"]} render={x=><><td className="p-3 font-semibold">{x.name}</td><td className="p-3">{x.subject||"-"}</td><td className="p-3">{x.qualification||"-"}</td><td className="p-3">{dateFmt(x.joiningDate)}</td><td className="p-3 text-right">{money(x.monthlySalary)}</td><td className="p-3 text-center">{x.status||"Active"}</td></>} onAdd={()=>setModal("teacher")} onEdit={x=>{setEditing(x);setModal("teacher")}} onDelete={x=>del("teacher",x.id)}/>}
+    {tab==="fees"&&<div className="space-y-5">
+      {(()=>{const mf=fees.filter(x=>x.month===feeMonth);const active=students.filter(s=>s.status!=="Inactive");const expected=active.reduce((a,x)=>a+(+x.monthlyFee||0),0);const collected=mf.filter(x=>x.paymentStatus==="Paid").reduce((a,x)=>a+(+x.amount||0),0);const outstanding=Math.max(0,expected-collected);const defaulters=active.filter(st=>!mf.some(f=>String(f.studentId)===String(st.id)&&f.paymentStatus==="Paid")).length;return <>
+       <div className="bg-white rounded-2xl p-5 shadow-card border border-blue-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div><h2 className="text-xl font-extrabold">Fee Collection</h2><p className="text-sm text-slate-500">Select a month to view fee summary.</p></div>
+        <label className="block"><span className="block text-sm font-semibold mb-1">Select Month</span><input type="month" value={feeMonth} onChange={e=>setFeeMonth(e.target.value)} className="border rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"/></label>
+       </div>
+       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="bg-blue-600 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-80">Expected Fee</p><h3 className="text-2xl font-extrabold mt-2">{money(expected)}</h3><p className="text-xs mt-2 opacity-80">{monthFmt(feeMonth)}</p></div>
+        <div className="bg-green-600 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-80">Collected Fee</p><h3 className="text-2xl font-extrabold mt-2">{money(collected)}</h3><p className="text-xs mt-2 opacity-80">{monthFmt(feeMonth)}</p></div>
+        <div className="bg-orange-500 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-80">Outstanding</p><h3 className="text-2xl font-extrabold mt-2">{money(outstanding)}</h3><p className="text-xs mt-2 opacity-80">Remaining fee</p></div>
+        <div className="bg-purple-600 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-80">Defaulters</p><h3 className="text-2xl font-extrabold mt-2">{defaulters}</h3><p className="text-xs mt-2 opacity-80">Students not paid</p></div>
+       </div>
+       <Records title={`Fee Records — ${monthFmt(feeMonth)}`} desc="Record and review student fee payments." add="Add Fee" search={search} setSearch={setSearch} rows={mf.filter(x=>`${x.studentName} ${x.className} ${x.amount} ${x.month} ${x.paymentStatus}`.toLowerCase().includes(search.toLowerCase()))} cols={["Student","Class","Month","Payment Date","Amount","Status"]} render={x=><><td className="p-3 font-semibold">{x.studentName}</td><td className="p-3">{x.className||students.find(s=>String(s.id)===String(x.studentId))?.className||"-"}</td><td className="p-3">{monthFmt(x.month)}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 text-right text-green-600 font-bold">{money(x.amount)}</td><td className="p-3"><span className={`px-3 py-1 rounded-full text-xs font-bold ${x.paymentStatus==="Paid"?"bg-green-100 text-green-700":"bg-red-100 text-red-700"}`}>{x.paymentStatus}</span></td></>} onAdd={()=>setModal("fee")} onEdit={x=>{setEditing(x);setModal("fee")}} onDelete={x=>del("fee",x.id)}/>
+      </>})()}
+     </div>}
+        {tab==="expenses"&&<Records title="Expenses" desc="Teacher salaries are automatically included as expenses." add="Add Expense" search={search} setSearch={setSearch} rows={expenses.filter(x=>`${x.name} ${x.amount}`.toLowerCase().includes(search.toLowerCase()))} cols={["Expense","Date","Month","Amount","Type"]} render={x=><><td className="p-3 font-semibold">{x.name}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3">{monthFmt(x.month)}</td><td className="p-3 text-right text-red-600 font-bold">{money(x.amount)}</td><td className="p-3">{x.autoSalaryId?"Teacher Salary":"General"}</td></>} onAdd={()=>setModal("expense")} onEdit={x=>{if(x.autoSalaryId){alert("Please edit this record from Teacher Salary.");return}setEditing(x);setModal("expense")}} onDelete={x=>del("expense",x.id)}/>}
+    {tab==="classes"&&<ClassesPage students={students} nav={nav}/>} 
+   {tab==="salary"&&<Records title="Teacher Salary" desc="Salary payments automatically create matching expenses." add="Add Teacher Salary" search={search} setSearch={setSearch} rows={salaries.filter(x=>`${x.teacherName} ${x.month} ${x.amount}`.toLowerCase().includes(search.toLowerCase()))} cols={["Teacher","Month","Amount","Payment Date","Notes"]} render={x=><><td className="p-3 font-semibold">{x.teacherName}</td><td className="p-3">{monthFmt(x.month)}</td><td className="p-3 text-right text-orange-600 font-bold">{money(x.amount)}</td><td className="p-3">{dateFmt(x.paymentDate)}</td><td className="p-3">{x.notes||"-"}</td></>} onAdd={()=>setModal("salary")} onEdit={x=>{setEditing(x);setModal("salary")}} onDelete={x=>del("salary",x.id)}/>}
+  {tab==="reports"&&<div className="space-y-5"><div className="bg-white rounded-2xl p-5 shadow-card border"><h2 className="text-xl font-bold">📚 Copy & Extra Payment Report</h2><p className="text-slate-500">Total records: {copies.length} | Total: {money(copies.reduce((a,x)=>a+(+x.copyAmount||0)+(+x.extraAmount||0),0))}</p></div>
+  {(()=>{const d=new Date(reportDate+"T00:00:00");const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),monthKey=`${y}-${m}`;const dayStart=new Date(d);const dayEnd=new Date(d);dayEnd.setDate(d.getDate()+1);const weekStart=new Date(d);weekStart.setDate(d.getDate()-d.getDay());const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+7);
+   const match=(date)=>{if(!date)return false;const x=new Date(date+"T00:00:00");if(reportPeriod==="Daily")return date===reportDate;if(reportPeriod==="Weekly")return x>=weekStart&&x<weekEnd;if(reportPeriod==="Monthly")return date.slice(0,7)===monthKey;if(reportPeriod==="Yearly")return date.slice(0,4)===String(y);return false};
+   const feeRows=fees.filter(x=>x.paymentStatus==="Paid"&&match(x.date));const expenseRows=expenses.filter(x=>match(x.date));const feeTotal=feeRows.reduce((a,x)=>a+(+x.amount||0),0);const expenseTotal=expenseRows.reduce((a,x)=>a+(+x.amount||0),0);const net=feeTotal-expenseTotal;
+   return <>
+    <div className="bg-white rounded-2xl p-5 shadow-card border border-indigo-100">
+     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+      <div><h2 className="text-2xl font-extrabold">Reports</h2><p className="text-slate-500">Check fee collection and expenses by date and period.</p></div>
+      <div className="flex flex-col sm:flex-row gap-3">
+       <label><span className="block text-xs font-semibold mb-1">Calendar Date</span><input type="date" value={reportDate} onChange={e=>setReportDate(e.target.value)} className="border rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500"/></label>
+       <label><span className="block text-xs font-semibold mb-1">Report Type</span><select value={reportPeriod} onChange={e=>setReportPeriod(e.target.value)} className="border rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500"><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Yearly</option></select></label>
+      </div>
+     </div>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+     <div className="bg-gradient-to-br from-green-500 to-emerald-700 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-85">Collected Fee</p><h3 className="text-3xl font-extrabold mt-2">{money(feeTotal)}</h3><p className="text-xs mt-2 opacity-80">{reportPeriod} report</p></div>
+     <div className="bg-gradient-to-br from-red-500 to-orange-600 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-85">Expenses</p><h3 className="text-3xl font-extrabold mt-2">{money(expenseTotal)}</h3><p className="text-xs mt-2 opacity-80">{reportPeriod} report</p></div>
+     <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-85">Net Balance</p><h3 className="text-3xl font-extrabold mt-2">{money(net)}</h3><p className="text-xs mt-2 opacity-80">Fee − Expenses</p></div>
+    </div>
+    <div className="grid xl:grid-cols-2 gap-5">
+     <div className="bg-white rounded-2xl shadow-card overflow-hidden"><div className="p-5 border-b"><h3 className="font-bold text-lg text-green-700">💰 Fee Report</h3><p className="text-sm text-slate-500">{feeRows.length} paid records</p></div><div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Student</th><th className="p-3 text-left">Date</th><th className="p-3 text-right">Amount</th></tr></thead><tbody>{feeRows.map(x=><tr className="border-t" key={x.id}><td className="p-3 font-semibold">{x.studentName}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 text-right text-green-600">{money(x.amount)}</td></tr>)}</tbody></table></div>{!feeRows.length&&<div className="p-8 text-center text-slate-500">No fee collection found.</div>}</div>
+     <div className="bg-white rounded-2xl shadow-card overflow-hidden"><div className="p-5 border-b"><h3 className="font-bold text-lg text-red-700">📉 Expense Report</h3><p className="text-sm text-slate-500">{expenseRows.length} expense records</p></div><div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Description</th><th className="p-3 text-left">Date</th><th className="p-3 text-right">Amount</th></tr></thead><tbody>{expenseRows.map(x=><tr className="border-t" key={x.id}><td className="p-3 font-semibold">{x.description||x.title||"Expense"}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 text-right text-red-600">{money(x.amount)}</td></tr>)}</tbody></table></div>{!expenseRows.length&&<div className="p-8 text-center text-slate-500">No expenses found.</div>}</div>
+    </div>
+   </>})()}
+ </div>}
+   </div>
+  </main>
+ {modal==="student"&&<StudentModal initial={editing} close={close} save={submitStudent}/>}
+  {modal==="teacher"&&<TeacherModal initial={editing} close={close} save={submitTeacher}/>}
+  {modal==="fee"&&<FeeModal initial={editing} students={students} close={close} save={submitFee}/>}
+  {modal==="expense"&&<ExpenseModal initial={editing} close={close} save={submitExpense}/>}
+  {modal==="salary"&&<SalaryModal initial={editing} teachers={teachers} close={close} save={submitSalary}/>}
+ </div>
+}
+
+function ClassesPage({students,nav}){
+ const classes=["Play Group","Nursery","Prep","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"];
+ return <div>
+  <div className="flex flex-col sm:flex-row justify-between gap-3 mb-5">
+   <div><h2 className="text-xl font-bold">Classes</h2><p className="text-sm text-slate-500">Play Group to 10th Class</p></div>
+   <button onClick={()=>nav("students")} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-xl font-semibold">＋ Add Student</button>
+  </div>
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+   {classes.map((c,i)=>{let count=students.filter(s=>String(s.className||"")===c).length;return <div key={c} className="bg-white rounded-2xl shadow-card overflow-hidden border-t-4 border-blue-500 hover:-translate-y-1 transition">
+    <div className="p-5"><div className="text-3xl mb-2">🎓</div><h3 className="font-bold text-lg">{c}</h3><p className="text-sm text-slate-500 mt-1">Students</p><b className="text-2xl text-blue-600">{count}</b></div>
+   </div>})}
+  </div>
+  <div className="mt-6 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white rounded-2xl p-6 shadow-card">
+   <h3 className="text-xl font-bold">Faisal Public High School Classes</h3>
+   <p className="mt-1 text-white/90">Complete class structure from Play Group to 10th.</p>
+   <div className="flex flex-wrap gap-2 mt-4">{classes.map(c=><span key={c} className="bg-white/20 px-3 py-1.5 rounded-full text-sm">{c}</span>)}</div>
+  </div>
+ </div>
+}
+function Copies({students,copies,setCopies,del}){const [studentId,setStudentId]=useState("");const [copyAmount,setCopyAmount]=useState("");const [extraAmount,setExtraAmount]=useState("");const [month,setMonth]=useState(today().slice(0,7));const st=students.find(x=>String(x.id)===String(studentId));const add=()=>{if(!studentId)return alert("Please select a student");setCopies(a=>[...a,{id:uid(),studentId,studentName:st?.name||"",className:st?.className||"",copyAmount:+copyAmount||0,extraAmount:+extraAmount||0,month,date:today()}]);setCopyAmount("");setExtraAmount("")};return <div className="space-y-5"><div className="bg-white rounded-2xl p-5 shadow-card"><h2 className="text-xl font-bold mb-4">Copies & Extra Payment</h2><div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3"><Sel label="Select Student" value={studentId} onChange={e=>setStudentId(e.target.value)}><option value="">Select Student</option>{students.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Sel><In label="Class (Automatic)" value={st?.className||""} readOnly/><In label="Copy Amount" type="number" value={copyAmount} onChange={e=>setCopyAmount(e.target.value)}/><In label="Extra Payment" type="number" value={extraAmount} onChange={e=>setExtraAmount(e.target.value)}/><In label="Month" type="month" value={month} onChange={e=>setMonth(e.target.value)}/></div><button onClick={add} className="mt-4 bg-blue-600 text-white px-5 py-3 rounded-xl font-bold">Add Record</button></div><Records title="Copy Records" desc="Student copies and extra payments." add="Add Record" search="" setSearch={()=>{}} rows={copies} cols={["Student","Class","Month","Copy","Extra Payment"]} render={x=><><td className="p-3 font-semibold">{x.studentName}</td><td className="p-3">{x.className}</td><td className="p-3">{monthFmt(x.month)}</td><td className="p-3">{money(x.copyAmount)}</td><td className="p-3">{money(x.extraAmount)}</td></>} onAdd={()=>{}} onEdit={()=>{}} onDelete={x=>del("copy",x.id)}/></div>}
+
+function Dashboard(p){
+ const [selectedMonth,setSelectedMonth]=useState(p.month);
+ const [selectedDate,setSelectedDate]=useState(today());
+ const selectedExpected=p.students.filter(x=>x.status!=="Inactive").reduce((a,x)=>a+(+x.monthlyFee||0),0);
+ const selectedPaid=p.fees.filter(x=>(x.month||x.date?.slice(0,7))===selectedMonth&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0);
+ const selectedRemaining=Math.max(0,selectedExpected-selectedPaid);
+ const selectedToday=p.fees.filter(x=>x.date===selectedDate&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0);
+ const selectedDefaulters=p.students.filter(s=>s.status!=="Inactive"&&!p.fees.some(f=>String(f.studentId)===String(s.id)&&(f.month||f.date?.slice(0,7))===selectedMonth&&f.paymentStatus==="Paid"));
+ let charts=[];for(let i=5;i>=0;i--){let d=new Date();d.setMonth(d.getMonth()-i);let k=d.toISOString().slice(0,7);charts.push({k,l:d.toLocaleDateString("en-US",{month:"short"}),v:p.fees.filter(x=>(x.month||x.date?.slice(0,7))===k&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0)})}
+ let max=Math.max(...charts.map(x=>x.v),1),normal=p.expenses.filter(x=>x.month===selectedMonth&&!x.autoSalaryId).reduce((a,x)=>a+ +x.amount,0),selectedSalary=p.salaries.filter(x=>x.month===selectedMonth).reduce((a,x)=>a+ +x.amount,0),total=normal+selectedSalary,sp=total?Math.round(selectedSalary/total*100):0;
+ return <div className="space-y-5">
+   <div className="relative overflow-hidden rounded-3xl p-7 text-white shadow-card bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500">
+    <div className="absolute -right-10 -top-16 w-48 h-48 rounded-full bg-white/10"></div>
+    <div className="absolute right-20 -bottom-20 w-40 h-40 rounded-full bg-purple-300/20"></div>
+    <div className="relative"><div className="text-sm font-semibold uppercase tracking-widest text-cyan-100">School Management Dashboard</div>
+    <h2 className="text-3xl sm:text-4xl font-extrabold mt-2">Faisal Public High School</h2>
+    <p className="text-blue-50 mt-2 max-w-2xl">Students, fee collection, expenses, teacher service and salary management — all in one place.</p>
+    <div className="flex flex-wrap gap-3 mt-5"><span className="bg-white/15 px-4 py-2 rounded-full text-sm">💾 Auto Save</span><span className="bg-white/15 px-4 py-2 rounded-full text-sm">📱 Mobile Friendly</span><span className="bg-white/15 px-4 py-2 rounded-full text-sm">🔒 Local Storage</span></div></div>
+   </div>
+
+   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8 gap-4">
+    <Stat t="Total Students" v={p.activeStudents} i="students"/>
+    <Stat t="Total Teachers" v={p.teachers.length} i="teacher"/>
+    <Stat t={`Collection (${dateFmt(selectedDate)})`} v={money(selectedToday)} i="fees"/>
+    <Stat t={`Expected Fee (${monthFmt(selectedMonth)})`} v={money(selectedExpected)} i="fees"/>
+    <Stat t={`Paid Fee (${monthFmt(selectedMonth)})`} v={money(selectedPaid)} i="fees"/>
+    <Stat t={`Remaining Fee (${monthFmt(selectedMonth)})`} v={money(selectedRemaining)} i="salary"/>
+    <Stat t={`Teacher Salaries (${monthFmt(selectedMonth)})`} v={money(selectedSalary)} i="salary"/>
+    <Stat t="Net Profit (Current Month)" v={money(p.net)} i="chart"/>
+    <Stat t={`Copies & Extra (${monthFmt(selectedMonth)})`} v={money((p.copies||[]).filter(x=>x.month===selectedMonth).reduce((a,x)=>a+(+x.copyAmount||0)+(+x.extraAmount||0),0))} i="fees"/>
+   </div>
+
+   <div className="grid xl:grid-cols-2 gap-5">
+    <div className="bg-white rounded-2xl p-5 shadow-card border border-blue-100"><h3 className="font-bold text-lg text-blue-700">📊 Monthly Fee Collection</h3><p className="text-sm text-slate-500 mb-5">Last 6 months</p><div className="h-56 flex items-end gap-3">{charts.map(x=><div key={x.k} className="flex-1 h-full flex flex-col justify-end items-center"><span className="text-xs text-slate-500">{x.v?Math.round(x.v/1000)+"k":"0"}</span><div className="w-full max-w-12 bg-gradient-to-t from-indigo-600 via-blue-500 to-cyan-400 rounded-t" style={{height:Math.max(4,x.v/max*190)}}></div><span className="text-xs mt-2">{x.l}</span></div>)}</div></div>
+    <div className="bg-white rounded-2xl p-5 shadow-card border border-purple-100"><h3 className="font-bold text-lg text-purple-700">🥧 Expense Distribution</h3><p className="text-sm text-slate-500 mb-5">{monthFmt(selectedMonth)}</p><div className="flex flex-col sm:flex-row items-center gap-8"><div className="w-44 h-44 rounded-full" style={{background:`conic-gradient(#f97316 0 ${sp}%,#6366f1 ${sp}% 100%)`}}></div><div className="space-y-4 w-full"><p>🟠 Teacher Salaries: <b>{money(selectedSalary)}</b> ({sp}%)</p><p>🔵 Other Expenses: <b>{money(normal)}</b> ({100-sp}%)</p><hr/><p className="font-bold">Total Expenses: {money(total)}</p></div></div></div>
+   </div>
+
+   <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-rose-100"><div className="p-5 border-b bg-gradient-to-r from-rose-50 to-orange-50"><h3 className="font-bold text-lg text-rose-700">⚠️ Fee Defaulters</h3><p className="text-sm text-slate-500">Students without a payment for {monthFmt(selectedMonth)}</p></div>{selectedDefaulters.length?<div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Student</th><th className="p-3 text-left">Class</th><th className="p-3 text-right">Monthly Fee</th></tr></thead><tbody>{selectedDefaulters.slice(0,15).map(x=><tr className="border-t" key={x.id}><td className="p-3 font-semibold">{x.name}</td><td className="p-3">{x.className||"-"}</td><td className="p-3 text-right text-red-600">{money(x.monthlyFee)}</td></tr>)}</tbody></table></div>:<div className="p-8 text-center">🎉 No fee defaulters!</div>}</div>
+  </div>
+}
+function Stat({t,v,i}){const styles={students:"from-blue-500 to-cyan-500",teacher:"from-violet-500 to-purple-600",fees:"from-emerald-500 to-teal-500",salary:"from-orange-500 to-amber-500",chart:"from-pink-500 to-rose-500"};return <div className="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition"><div className={"h-1.5 bg-gradient-to-r "+(styles[i]||"from-blue-500 to-indigo-500")}></div><div className="p-4 flex justify-between items-center"><div><p className="text-xs text-slate-500 font-semibold">{t}</p><b className="text-xl block mt-2 text-slate-800">{v}</b></div><span className={"w-11 h-11 rounded-xl bg-gradient-to-br "+(styles[i]||"from-blue-500 to-indigo-500")+" text-white flex items-center justify-center text-xl"}><Icon n={i}/></span></div></div>}
+
+function Records({title,desc,add,search,setSearch,rows,cols,render,onAdd,onEdit,onDelete}){
+ return <div><div className="flex flex-col sm:flex-row justify-between gap-3 mb-5"><div><h2 className="text-xl font-bold">{title}</h2><p className="text-sm text-slate-500">{desc}</p></div><button onClick={onAdd} className="bg-blue-600 text-white px-4 py-3 rounded-xl font-semibold">＋ {add}</button></div><div className="bg-white rounded-2xl shadow-card overflow-hidden"><div className="p-4 border-b"><div className="relative"><span className="absolute left-3 top-2.5"><Icon n="search"/></span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="w-full border rounded-xl p-2.5 pl-10 outline-none focus:ring-2 focus:ring-blue-500"/></div></div>{!rows.length?<div className="p-12 text-center text-slate-500">No records found.</div>:<div className="overflow-x-auto"><table className="w-full text-sm min-w-[800px]"><thead className="bg-slate-50"><tr>{cols.map(c=><th className="p-3 text-left" key={c}>{c}</th>)}<th className="p-3 text-center">Actions</th></tr></thead><tbody>{rows.map(x=><tr className="border-t hover:bg-slate-50" key={x.id}>{render(x)}<td className="p-3"><div className="flex justify-center gap-2"><button onClick={()=>onEdit(x)} className="bg-blue-50 text-blue-600 p-2 rounded-lg">✏️</button><button onClick={()=>onDelete(x)} className="bg-red-50 text-red-600 p-2 rounded-lg">🗑️</button></div></td></tr>)}</tbody></table></div>}</div></div>
+}
+function Modal({title,children,close}){return <div className="fixed inset-0 z-[100] modal-bg flex items-center justify-center p-3"><div className="bg-white rounded-2xl w-full max-w-2xl max-h-[94vh] overflow-y-auto"><div className="sticky top-0 bg-white border-b p-4 flex justify-between"><h2 className="font-bold text-lg">{title}</h2><button onClick={close}><Icon n="close"/></button></div><div className="p-5">{children}</div></div></div>}
+const In=({label,...p})=><label className="block"><span className="block text-sm font-semibold mb-1">{label}</span><input {...p} className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"/></label>;
+const Sel=({label,children,...p})=><label className="block"><span className="block text-sm font-semibold mb-1">{label}</span><select {...p} className="w-full border rounded-lg p-2.5 bg-white outline-none focus:ring-2 focus:ring-blue-500">{children}</select></label>;
+const Area=({label,...p})=><label className="block"><span className="block text-sm font-semibold mb-1">{label}</span><textarea {...p} className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"/></label>;
+function Custom({fields,setFields}){function add(){setFields([...fields,{id:uid(),name:"",value:""}])}return <div className="mt-5 pt-5 border-t"><div className="flex justify-between mb-3"><b>Custom Fields</b><button type="button" onClick={add} className="text-blue-600 font-semibold">+ Add Custom Field</button></div>{fields.map(f=><div className="grid sm:grid-cols-[1fr_1fr_auto] gap-2 mb-2" key={f.id}><input value={f.name} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,name:e.target.value}:x))} placeholder="Field name" className="border rounded-lg p-2"/><input value={f.value} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,value:e.target.value}:x))} placeholder="Value" className="border rounded-lg p-2"/><button type="button" onClick={()=>setFields(fields.filter(x=>x.id!==f.id))} className="bg-red-50 text-red-600 rounded-lg px-3">🗑️</button></div>)}</div>}
+function Buttons({close,text}){return <div className="flex justify-end gap-2 mt-6 pt-4 border-t"><button type="button" onClick={close} className="border px-5 py-2.5 rounded-lg">Cancel</button><button className="bg-blue-600 text-white px-5 py-2.5 rounded-lg">{text}</button></div>}
+function StudentModal({initial,close,save}){let[f,setF]=useState({name:initial?.name||"",fatherName:initial?.fatherName||"",className:initial?.className||"",rollNo:initial?.rollNo||"",monthlyFee:initial?.monthlyFee||"",admissionDate:initial?.admissionDate||today(),phone:initial?.phone||"",address:initial?.address||"",status:initial?.status||"Active",notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);return <Modal title={initial?"Edit Student":"Add Student"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,monthlyFee:+f.monthlyFee,customFields:cf})}}><div className="grid sm:grid-cols-2 gap-4"><In label="Student Name" required value={f.name} onChange={e=>setF({...f,name:e.target.value})}/><In label="Father Name" value={f.fatherName} onChange={e=>setF({...f,fatherName:e.target.value})}/><Sel label="Class" value={f.className} onChange={e=>setF({...f,className:e.target.value})}>
+<option value="">Select Class</option><option>Play Group</option><option>Nursery</option><option>Prep</option><option>1st</option><option>2nd</option><option>3rd</option><option>4th</option><option>5th</option><option>6th</option><option>7th</option><option>8th</option><option>9th</option><option>10th</option>
+</Sel><In label="Roll Number" value={f.rollNo} onChange={e=>setF({...f,rollNo:e.target.value})}/><In label="Monthly Fee" type="number" value={f.monthlyFee} onChange={e=>setF({...f,monthlyFee:e.target.value})}/><In label="Admission Date" type="date" value={f.admissionDate} onChange={e=>setF({...f,admissionDate:e.target.value})}/><In label="Phone" value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/><Sel label="Status" value={f.status} onChange={e=>setF({...f,status:e.target.value})}><option>Active</option><option>Inactive</option></Sel></div><div className="mt-4"><Area label="Address" rows="2" value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></div><div className="mt-4"><Area label="Notes" rows="2" value={f.notes} onChange={e=>setF({...f,notes:e.target.value})}/></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Student":"Add Student"}/></form></Modal>}
+function TeacherModal({initial,close,save}){let[f,setF]=useState({name:initial?.name||"",fatherName:initial?.fatherName||"",cnic:initial?.cnic||"",phone:initial?.phone||"",subject:initial?.subject||"",qualification:initial?.qualification||"",joiningDate:initial?.joiningDate||today(),status:initial?.status||"Active",monthlySalary:initial?.monthlySalary||"",address:initial?.address||"",notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);let ch=(k,v)=>setF({...f,[k]:v});return <Modal title={initial?"Edit Teacher Service":"Add Teacher Service"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,monthlySalary:+f.monthlySalary,customFields:cf})}}><div className="grid sm:grid-cols-2 gap-4"><In label="Teacher Name" required value={f.name} onChange={e=>ch("name",e.target.value)}/><In label="Father Name" value={f.fatherName} onChange={e=>ch("fatherName",e.target.value)}/><In label="CNIC / ID" value={f.cnic} onChange={e=>ch("cnic",e.target.value)}/><In label="Phone Number" value={f.phone} onChange={e=>ch("phone",e.target.value)}/><In label="Subject" value={f.subject} onChange={e=>ch("subject",e.target.value)}/><In label="Qualification" value={f.qualification} onChange={e=>ch("qualification",e.target.value)}/><In label="Joining Date" type="date" value={f.joiningDate} onChange={e=>ch("joiningDate",e.target.value)}/><Sel label="Service Status" value={f.status} onChange={e=>ch("status",e.target.value)}><option>Active</option><option>Inactive</option></Sel><In label="Monthly Salary" type="number" value={f.monthlySalary} onChange={e=>ch("monthlySalary",e.target.value)}/></div><div className="mt-4"><Area label="Address" rows="2" value={f.address} onChange={e=>ch("address",e.target.value)}/></div><div className="mt-4"><Area label="Notes" rows="2" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Teacher":"Add Teacher"}/></form></Modal>}
+function FeeModal({initial,students,selectedMonth,close,save}){
+ let[f,setF]=useState({
+  studentId:initial?.studentId||"",
+  studentName:initial?.studentName||"",
+  className:initial?.className||"",
+  amount:initial?.amount||"",
+  month:initial?.month||selectedMonth||thisMonth(),
+  date:initial?.date||today(),
+  paymentStatus:initial?.paymentStatus||"Paid",
+  notes:initial?.notes||""
+ }),[cf,setCf]=useState(initial?.customFields||[]);
+ let ch=(k,v)=>setF({...f,[k]:v});
+ function studentChange(v){
+  let st=students.find(x=>String(x.id)===String(v));
+  setF({...f,studentId:v,studentName:st?.name||"",className:st?.className||"",amount:st?.monthlyFee||""});
+ }
+ return <Modal title={initial?"Edit Fee":"Add Fee"} close={close}>
+  <form onSubmit={e=>{e.preventDefault();if(!f.studentId){alert("Please select a student.");return}save({...f,amount:+f.amount,customFields:cf})}}>
+   <div className="grid sm:grid-cols-2 gap-4">
+    <Sel label="Student Name" required value={f.studentId} onChange={e=>studentChange(e.target.value)}>
+     <option value="">Select Student</option>
+     {students.filter(s=>s.status!=="Inactive").map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+    </Sel>
+    <In label="Class" value={f.className} readOnly placeholder="Auto from Student"/>
+    <In label="Monthly Fee" required type="number" value={f.amount} readOnly placeholder="Auto from Student"/>
+    <In label="Fee Month" required type="month" value={f.month} onChange={e=>ch("month",e.target.value)}/>
+    <In label="Payment Date" type="date" value={f.date} onChange={e=>ch("date",e.target.value)}/>
+   </div>
+   <div className="mt-5">
+    <span className="block text-sm font-semibold mb-2">Fee Status</span>
+    <div className="grid grid-cols-2 gap-3">
+     <button type="button" onClick={()=>ch("paymentStatus","Paid")} className={`p-3 rounded-xl border-2 font-bold ${f.paymentStatus==="Paid"?"border-green-500 bg-green-50 text-green-700":"border-slate-200 text-slate-500"}`}>✓ Paid</button>
+     <button type="button" onClick={()=>ch("paymentStatus","Unpaid")} className={`p-3 rounded-xl border-2 font-bold ${f.paymentStatus==="Unpaid"?"border-red-500 bg-red-50 text-red-700":"border-slate-200 text-slate-500"}`}>✕ Unpaid</button>
+    </div>
+   </div>
+   <div className="mt-4"><Area label="Notes" rows="3" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div>
+   <Custom fields={cf} setFields={setCf}/>
+   <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+    <button type="button" onClick={close} className="border px-5 py-2.5 rounded-lg">Cancel</button>
+    <button type="button" onClick={()=>{if(!f.studentId){alert("Please select a student.");return}save({...f,amount:+f.amount,paymentStatus:"Paid",date:f.date||today(),customFields:cf})}} className="bg-green-600 text-white px-5 py-2.5 rounded-lg font-semibold">✓ Mark as Paid & Save</button>
+    <button type="submit" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg">{initial?"Update Fee":"Save Fee"}</button>
+   </div>
+  </form>
+ </Modal>
+}
+function ExpenseModal({initial,close,save}){let[f,setF]=useState({name:initial?.name||"",amount:initial?.amount||"",month:initial?.month||thisMonth(),date:initial?.date||today(),notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);let ch=(k,v)=>setF({...f,[k]:v});return <Modal title={initial?"Edit Expense":"Add Expense"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,amount:+f.amount,customFields:cf})}}><div className="space-y-4"><In label="Expense Name" required value={f.name} onChange={e=>ch("name",e.target.value)}/><div className="grid sm:grid-cols-2 gap-4"><In label="Amount" required type="number" value={f.amount} onChange={e=>ch("amount",e.target.value)}/><In label="Date" type="date" value={f.date} onChange={e=>ch("date",e.target.value)}/><In label="Month" type="month" value={f.month} onChange={e=>ch("month",e.target.value)}/></div><Area label="Notes" rows="3" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Expense":"Add Expense"}/></form></Modal>}
+function SalaryModal({initial,teachers,close,save}){let[f,setF]=useState({teacherId:initial?.teacherId||"",teacherName:initial?.teacherName||"",month:initial?.month||thisMonth(),amount:initial?.amount||"",paymentDate:initial?.paymentDate||today(),notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);let ch=(k,v)=>setF({...f,[k]:v});function teacherChange(v){let t=teachers.find(x=>String(x.id)===String(v));setF({...f,teacherId:v,teacherName:t?.name||"",amount:t?.monthlySalary||f.amount})}return <Modal title={initial?"Edit Teacher Salary":"Add Teacher Salary"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,customFields:cf})}}><div className="grid sm:grid-cols-2 gap-4"><Sel label="Teacher Name" required value={f.teacherId} onChange={e=>teacherChange(e.target.value)}><option value="">Select Teacher</option>{teachers.map(t=><option key={t.id} value={t.id}>{t.name}{t.subject?" — "+t.subject:""}</option>)}</Sel><In label="Month" required type="month" value={f.month} onChange={e=>ch("month",e.target.value)}/><In label="Amount" required type="number" value={f.amount} onChange={e=>ch("amount",e.target.value)}/><In label="Payment Date" required type="date" value={f.paymentDate} onChange={e=>ch("paymentDate",e.target.value)}/></div><div className="mt-4"><Area label="Notes" rows="3" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div><div className="mt-4 p-3 bg-orange-50 rounded-lg text-sm text-orange-800">Saving this salary automatically creates an Expense: <b>Teacher Salary - {f.teacherName||"[Teacher Name]"} - {monthFmt(f.month)}</b></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Salary":"Add Salary"}/></form></Modal>}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
