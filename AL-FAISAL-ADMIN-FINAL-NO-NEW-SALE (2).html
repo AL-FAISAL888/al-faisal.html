@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<!-- FINAL STRICT PRIVATE UID VERSION: no legacy/shared-data migration -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AL - FAISAL EDUCATION MANAGEMENT SYSTEM</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eff6ff,#f5f3ff 45%,#ecfeff)}
+*{box-sizing:border-box}.shadow-card{box-shadow:0 8px 30px rgba(59,130,246,.10)}
+.modal-bg{background:rgba(15,23,42,.55)}
+@media print{.no-print{display:none!important}}
+</style>
+
+<style>
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#eff6ff,#f5f3ff 45%,#ecfeff)}
+.auth-card{width:100%;max-width:440px;background:#fff;border-radius:24px;padding:30px;box-shadow:0 12px 40px rgba(15,23,42,.15)}
+.auth-logo{text-align:center;font-size:44px;margin-bottom:8px}
+.auth-card h1{text-align:center;margin:0;font-size:24px}.auth-sub{text-align:center;color:#64748b;margin:8px 0 24px}
+.auth-card label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+.auth-card input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px}
+.auth-btn{width:100%;margin-top:20px;padding:13px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+.auth-switch{text-align:center;margin-top:18px;color:#475569}.auth-switch button{border:0;background:none;color:#2563eb;font-weight:700;cursor:pointer}
+.auth-msg{margin-top:12px;text-align:center;font-size:14px;min-height:20px}.auth-note{margin-top:18px;padding:12px;background:#f8fafc;border-radius:10px;font-size:12px;color:#64748b}
+</style>
+
+<style>
+.activation-lock{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.96);display:flex;align-items:center;justify-content:center;padding:20px}
+.activation-card{width:100%;max-width:520px;background:#fff;border-radius:24px;padding:28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.activation-card h2{margin:8px 0;font-size:26px}.activation-card p{color:#475569;line-height:1.6}
+.activation-pill{display:inline-block;padding:7px 12px;border-radius:999px;background:#fee2e2;color:#991b1b;font-weight:700}
+.admin-actions{display:flex;gap:6px;flex-wrap:wrap}.admin-actions button{border:0;border-radius:9px;padding:8px 10px;color:#fff;font-weight:700;cursor:pointer}
+.admin-search{width:100%;max-width:430px;padding:11px;border:1px solid #cbd5e1;border-radius:10px}
+.admin-table{width:100%;border-collapse:collapse}.admin-table th,.admin-table td{padding:10px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}.admin-table th{background:#f8fafc}
+</style>
+<style>
+.invoice-list{margin-top:18px;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;background:#fff}
+.invoice-head{padding:16px;background:#f8fafc;font-weight:800}
+.invoice-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 110px;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid #e2e8f0}
+.invoice-row.paid{background:#f0fdf4}
+.invoice-btn{border:0;border-radius:9px;padding:8px 12px;background:#16a34a;color:#fff;font-weight:800;cursor:pointer}
+.invoice-btn:disabled{background:#94a3b8;cursor:not-allowed}
+@media(max-width:700px){.invoice-row{grid-template-columns:1fr 1fr}.invoice-row .invoice-action{grid-column:1/-1}}
+</style>
+<style>
+.dark-mode{background:#05070b;color:#e5e7eb;min-height:100vh}
+.dark-mode .bg-white{background:#111827!important;color:#e5e7eb}
+.dark-mode .bg-slate-50{background:#1f2937!important}
+.dark-mode .bg-blue-50{background:#172554!important}
+.dark-mode .bg-amber-50{background:#422006!important}
+.dark-mode .bg-emerald-50{background:#052e16!important}
+.dark-mode .bg-red-50{background:#450a0a!important}
+.dark-mode .border,.dark-mode .border-slate-200,.dark-mode .border-slate-300,.dark-mode .border-slate-100{border-color:#374151!important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#0f172a!important;color:#f3f4f6!important;border-color:#475569!important}
+.dark-mode input::placeholder,.dark-mode textarea::placeholder{color:#94a3b8}
+.dark-mode .text-slate-800,.dark-mode .text-slate-700{color:#f3f4f6!important}
+.dark-mode .text-slate-600,.dark-mode .text-slate-500{color:#cbd5e1!important}
+.dark-mode .hover\:bg-slate-50:hover{background:#1f2937!important}
+
+.dark-mode .attendance-status-btn{color:#f8fafc!important;border:1px solid #64748b!important;background:#273449!important;text-shadow:0 1px 1px rgba(0,0,0,.45)}
+.dark-mode .attendance-status-btn:hover{background:#334155!important;color:#fff!important}
+.dark-mode .attendance-status-btn.bg-emerald-600{background:#059669!important;border-color:#34d399!important}
+.dark-mode .attendance-status-btn.bg-red-600{background:#dc2626!important;border-color:#f87171!important}
+.dark-mode .attendance-status-btn.bg-amber-500{background:#d97706!important;border-color:#fbbf24!important;color:#fff!important}
+.dark-mode .attendance-status-btn.bg-blue-600{background:#2563eb!important;border-color:#60a5fa!important}
+.dark-mode .theme-toggle{background:#f8fafc!important;color:#111827!important;border-color:#64748b!important}
+.theme-toggle{background:#fff;color:#111827}
+.date-time-box{background:#ffffff;color:#0f172a;border-color:#cbd5e1}
+.dark-mode .date-time-box{background:#111827!important;color:#ffffff!important;border-color:#64748b!important;box-shadow:0 0 0 1px #334155}
+.dark-mode .date-time-box span{color:#ffffff!important}
+.dark-mode .backup-page{color:#e5e7eb}
+.dark-mode .backup-page .bg-white{background:#111827!important;color:#e5e7eb!important}
+.dark-mode .backup-page .bg-slate-50{background:#1f2937!important;color:#e5e7eb!important}
+.dark-mode .backup-page .text-slate-500,.dark-mode .backup-page .text-slate-600{color:#cbd5e1!important}
+.dark-mode .backup-page .border-slate-200,.dark-mode .backup-page .border-slate-100{border-color:#374151!important}
+.dark-mode .backup-page table thead{background:#1f2937!important;color:#f3f4f6!important}
+.dark-mode .backup-page table tr{border-color:#374151!important}
+</style>
+
+<style id="dark-mode-readability-fix">
+.dark-mode .bg-white{background:#111827!important;color:#f8fafc!important}
+.dark-mode .bg-slate-50{background:#1f2937!important;color:#f8fafc!important}
+.dark-mode .bg-slate-100{background:#273449!important;color:#f8fafc!important}
+.dark-mode .text-slate-900,.dark-mode .text-slate-800,.dark-mode .text-slate-700{color:#f8fafc!important}
+.dark-mode .text-slate-600,.dark-mode .text-slate-500,.dark-mode .text-slate-400{color:#cbd5e1!important}
+.dark-mode .border-slate-100,.dark-mode .border-slate-200,.dark-mode .border-slate-300{border-color:#475569!important}
+.dark-mode .border-indigo-100,.dark-mode .border-blue-100,.dark-mode .border-purple-100,.dark-mode .border-rose-100{border-color:#475569!important}
+.dark-mode table thead{background:#1f2937!important;color:#f8fafc!important}
+.dark-mode table tbody tr{border-color:#374151!important}
+.dark-mode .hover\:bg-slate-50:hover{background:#273449!important;color:#fff!important}
+.dark-mode .bg-blue-50{background:#172554!important;color:#e0f2fe!important}
+.dark-mode .bg-emerald-50{background:#052e16!important;color:#dcfce7!important}
+.dark-mode .bg-red-50{background:#450a0a!important;color:#fee2e2!important}
+.dark-mode .bg-rose-50{background:#4c0519!important;color:#ffe4e6!important}
+.dark-mode .bg-orange-50{background:#431407!important;color:#ffedd5!important}
+.dark-mode .bg-amber-50{background:#422006!important;color:#fef3c7!important}
+.dark-mode .bg-purple-50{background:#2e1065!important;color:#f3e8ff!important}
+.dark-mode .bg-indigo-50{background:#1e1b4b!important;color:#e0e7ff!important}
+.dark-mode .bg-sky-50{background:#082f49!important;color:#e0f2fe!important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{
+  background:#0b1220!important;color:#f8fafc!important;border-color:#64748b!important;
+}
+.dark-mode input:disabled,.dark-mode select:disabled,.dark-mode textarea:disabled{
+  background:#1f2937!important;color:#cbd5e1!important;opacity:1!important;
+}
+.dark-mode input[type="checkbox"]{accent-color:#2563eb}
+.dark-mode option{background:#111827;color:#f8fafc}
+.dark-mode .theme-toggle{background:#f8fafc!important;color:#111827!important}
+.dark-mode .modal-bg .bg-white{background:#111827!important;color:#f8fafc!important}
+.dark-mode .modal-bg .border-b{border-color:#374151!important}
+.dark-mode hr{border-color:#475569!important}
+.dark-mode .invoice-list{background:#111827!important;border-color:#475569!important}
+.dark-mode .invoice-head{background:#1f2937!important;color:#f8fafc!important}
+.dark-mode .invoice-row{border-color:#374151!important}
+.dark-mode .activation-card{background:#111827!important;color:#f8fafc!important}
+.dark-mode .activation-card p{color:#cbd5e1!important}
+</style>
+
+
+<style>
+.af-brand{display:flex;align-items:center;gap:10px}
+.af-logo{width:42px;height:42px;flex:0 0 42px;display:block}.af-round-logo{border-radius:50%;overflow:hidden}
+.af-brand-title{display:flex;align-items:center;min-width:0}
+.af-brand-title-text{line-height:1.15}
+.auth-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.auth-brand .af-logo{width:50px;height:50px;flex-basis:50px}.auth-brand .af-round-logo{width:50px;height:50px}
+.auth-brand h1{text-align:left!important}
+.voucher-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.voucher-brand .af-logo{width:44px;height:44px;flex-basis:44px}.voucher-brand .af-round-logo{width:44px;height:44px}
+.voucher-brand h1{text-align:left!important}
+@media(max-width:640px){.af-logo{width:36px;height:36px;flex-basis:36px}.af-brand{gap:7px}.auth-brand .af-logo{width:44px;height:44px;flex-basis:44px}.voucher-brand .af-logo{width:38px;height:38px;flex-basis:38px}}
+</style>
+
+</head>
+<body>
+<div id="auth-root">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <svg class="af-logo af-round-logo" viewBox="0 0 100 100" aria-label="AL Faisal Education Management System logo"><circle cx="50" cy="50" r="47" fill="#071b33" stroke="#d4a017" stroke-width="3"/><circle cx="50" cy="50" r="43" fill="none" stroke="#f3d36b" stroke-width="1"/><path d="M25 42 Q31 34 37 40" fill="none" stroke="#d4a017" stroke-width="2"/><path d="M75 42 Q69 34 63 40" fill="none" stroke="#d4a017" stroke-width="2"/><path d="M24 43 C27 39 29 37 32 35 M22 48 C25 44 27 42 30 40 M23 53 C26 49 28 47 31 45" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round"/><path d="M76 43 C73 39 71 37 68 35 M78 48 C75 44 73 42 70 40 M77 53 C74 49 72 47 69 45" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round"/><path d="M50 20 L64 27 L50 34 L36 27 Z" fill="#d4a017"/><path d="M40 29 L40 34 Q50 39 60 34 L60 29" fill="#17365d" stroke="#d4a017" stroke-width="1"/><path d="M63 27 L63 37" stroke="#d4a017" stroke-width="1.5"/><circle cx="63" cy="38" r="1.3" fill="#d4a017"/><text x="50" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="900" fill="#f5c542">AL</text><path d="M29 55 Q39 49 50 57 Q61 49 71 55 L71 66 Q61 60 50 67 Q39 60 29 66Z" fill="#fff" stroke="#d4a017" stroke-width="1.5"/><path d="M50 57V67" stroke="#d4a017" stroke-width="1.3"/><text x="50" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="7.2" font-weight="900" fill="#f5c542">AL - FAISAL</text><text x="50" y="84" text-anchor="middle" font-family="Arial,sans-serif" font-size="4.0" font-weight="700" fill="#fff">EDUCATION MANAGEMENT</text><text x="50" y="90" text-anchor="middle" font-family="Arial,sans-serif" font-size="4.0" font-weight="700" fill="#fff">SYSTEM</text><circle cx="50" cy="95" r="1.5" fill="#d4a017"/></svg>
+        <h1>AL - FAISAL EDUCATION MANAGEMENT SYSTEM</h1>
+      </div>
+      <p class="auth-sub" id="auth-sub">Register to create your account</p>
+
+      <form id="register-form">
+        <label>Full Name</label>
+        <input id="reg-name" type="text" required placeholder="Enter your name">
+        <label>Email Address</label>
+        <input id="reg-email" type="email" required placeholder="Enter your email">
+        <label>Password</label>
+        <input id="reg-password" type="password" required minlength="6" placeholder="Create password (6+ characters)">
+        <button class="auth-btn" type="submit">Create Account</button>
+        <div class="auth-switch">Already registered? <button type="button" onclick="showLogin()">Login</button></div>
+      </form>
+
+      <form id="login-form" style="display:none">
+        <label>Email Address</label>
+        <input id="login-email" type="email" required placeholder="Enter registered email">
+        <label>Password</label>
+        <input id="login-password" type="password" required placeholder="Enter password">
+        <button class="auth-btn" type="submit">Login & Open System</button>
+        <div class="auth-switch">Forgot password? <button type="button" onclick="resetPassword()">Send reset email</button></div><div class="auth-switch">New user? <button type="button" onclick="showRegister()">Register</button></div>
+      </form>
+      <div class="auth-msg" id="auth-msg"></div>
+      <div class="auth-note">Secure cloud account mode: each registered email has its own private Firebase account and private school data.<br><span style="color:#64748b">Live Firebase configuration is used when available.</span></div>
+    </div>
+  </div>
+</div>
+<div id="root" style="display:none"></div>
+<script>
+// Firebase bootstrap. Prefer the live Firebase Hosting config so a rotated/deleted
+// Browser API key is not permanently baked into this GitHub Pages file.
+const STATIC_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBP3lw_qB_jruA0yJCqHlL8DPt10M6eYL0",
+  authDomain: "al-faisal-education-system.firebaseapp.com",
+  projectId: "al-faisal-education-system",
+  storageBucket: "al-faisal-education-system.firebasestorage.app",
+  messagingSenderId: "494186473118",
+  appId: "1:494186473118:web:3c7d6b8826514eb0f57d8f",
+  measurementId: "G-8JN3EMMXC4"
+};
+window.firebaseAuth = null;
+window.firebaseDb = null;
+window.CURRENT_UID = null;
+window.firebaseReady = (async function(){
+  // GitHub Pages version: use the exact Firebase Web App config from
+  // Firebase Console. Do not fetch Firebase Hosting init.json, because
+  // this project is being served from GitHub Pages and an old Hosting
+  // config could override the correct API key.
+  const cfg = STATIC_FIREBASE_CONFIG;
+  if (!cfg.apiKey || cfg.apiKey.indexOf("YOUR_") === 0) throw new Error("Firebase Web API key is missing.");
+  if (!firebase.apps.length) firebase.initializeApp(cfg);
+  window.firebaseAuth = firebase.auth();
+  window.firebaseDb = firebase.firestore();
+  return cfg;
+})();
+
+async function resetPassword(){
+  const email=document.getElementById("login-email").value.trim().toLowerCase();
+  if(!email){authMessage("Enter your registered email first.","#dc2626");return;}
+  try{await window.firebaseAuth.sendPasswordResetEmail(email);authMessage("Password reset email sent. Check your email inbox.","#16a34a");}
+  catch(e){authMessage(friendlyAuthError(e),"#dc2626");}
+}
+
+function openSystem(){
+  document.getElementById("auth-root").style.display="none";
+  document.getElementById("root").style.display="block";
+}
+function showLogin(){
+  document.getElementById("register-form").style.display="none";
+  document.getElementById("login-form").style.display="block";
+  document.getElementById("auth-sub").textContent="Login with your registered email and password";
+  document.getElementById("auth-msg").textContent="";
+}
+function showRegister(){
+  document.getElementById("login-form").style.display="none";
+  document.getElementById("register-form").style.display="block";
+  document.getElementById("auth-sub").textContent="Register to create your account";
+  document.getElementById("auth-msg").textContent="";
+}
+function authMessage(text,color){
+  const msg=document.getElementById("auth-msg");
+  msg.style.color=color;
+  msg.textContent=text;
+}
+function friendlyAuthError(err){
+  const code=(err&&err.code)||"";
+  if(code==="auth/invalid-api-key"||code==="auth/api-key-not-valid") return "Firebase API key is invalid. Update the Firebase Web App configuration.";
+  if(code==="auth/app-not-authorized") return "This web app is not authorized for the Firebase API key.";
+  if(code==="auth/email-already-in-use") return "This email is already registered. Please login.";
+  if(code==="auth/invalid-email") return "Please enter a valid email address.";
+  if(code==="auth/weak-password") return "Password should be at least 6 characters.";
+  if(code==="auth/user-not-found"||code==="auth/wrong-password"||code==="auth/invalid-credential") return "Incorrect email or password.";
+  return (err&&err.message)||"Authentication failed. Please try again.";
+}
+
+async function startAuth(){
+  try {
+    await window.firebaseReady;
+    // SECURITY: never keep a customer logged in after the page/browser is closed
+    // or refreshed. Every new visit must require the registered email + password.
+    await window.firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+    // Clear any older persistent session created by a previous version of the app.
+    try { await window.firebaseAuth.signOut(); } catch(_) {}
+  }
+  catch(err) { authMessage("Firebase configuration error: "+(err.message||err),"#dc2626"); return; }
+  document.getElementById("register-form").addEventListener("submit",async function(e){
+  e.preventDefault();
+  const name=document.getElementById("reg-name").value.trim();
+  const email=document.getElementById("reg-email").value.trim().toLowerCase();
+  const password=document.getElementById("reg-password").value;
+  try{
+    const cred=await window.firebaseAuth.createUserWithEmailAndPassword(email,password);
+    const now=new Date();
+    await window.firebaseDb.collection("users").doc(cred.user.uid).set({
+      name, email, schoolName:"SCHOOL NAME",
+      licenseStatus:"Active", licenseType:"Trial",
+      trialStartedAt:firebase.firestore.Timestamp.fromDate(now),
+      licenseExpiry:firebase.firestore.Timestamp.fromDate(new Date(now.getTime()+3*24*60*60*1000)),
+      activatedBy:"SYSTEM", activatedAt:firebase.firestore.Timestamp.fromDate(now),
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    // Registration creates the Firebase account, but does NOT open the software.
+    // The customer must now explicitly login with the same registered email/password.
+    await window.firebaseAuth.signOut();
+    showLogin();
+    document.getElementById("login-email").value=email;
+    document.getElementById("login-password").value="";
+    authMessage("Registration successful. Your 3-Day Trial has started. Please login with your registered email and password.","#16a34a");
+  }catch(err){ authMessage(friendlyAuthError(err),"#dc2626"); }
+});
+
+document.getElementById("login-form").addEventListener("submit",async function(e){
+  e.preventDefault();
+  const email=document.getElementById("login-email").value.trim().toLowerCase();
+  const password=document.getElementById("login-password").value;
+  try{
+    await window.firebaseAuth.signInWithEmailAndPassword(email,password);
+    authMessage("Login successful. Loading your saved data...","#16a34a");
+  }catch(err){ authMessage(friendlyAuthError(err),"#dc2626"); }
+});
+
+window.firebaseAuth.onAuthStateChanged(async function(user){
+  if(!user){
+    window.CURRENT_UID=null; window.CURRENT_LICENSE=null;
+    document.getElementById("root").style.display="none";
+    document.getElementById("auth-root").style.display="block";
+    removeActivationLock(); return;
+  }
+  // Only the Firebase user who explicitly authenticated in this session may open the app.
+  if(!window.firebaseAuth.currentUser || window.firebaseAuth.currentUser.uid!==user.uid){
+    document.getElementById("root").style.display="none";
+    document.getElementById("auth-root").style.display="block";
+    return;
+  }
+  window.CURRENT_UID=user.uid;
+  const email=(user.email||"").toLowerCase();
+
+  if(email==="p.zain0314@gmail.com"){
+    window.CURRENT_LICENSE={admin:true,licenseStatus:"Active",licenseType:"Admin"};
+    removeActivationLock(); openSystem(); return;
+  }
+
+  try{
+    const ref=window.firebaseDb.collection("users").doc(user.uid);
+    let snap=await ref.get();
+
+    if(!snap.exists || !(snap.data()||{}).licenseType){
+      const now=new Date();
+      await ref.set({
+        name:user.displayName||"Customer", email:user.email||"", schoolName:"SCHOOL NAME",
+        licenseStatus:"Active", licenseType:"Trial",
+        trialStartedAt:firebase.firestore.Timestamp.fromDate(now),
+        licenseExpiry:firebase.firestore.Timestamp.fromDate(new Date(now.getTime()+3*24*60*60*1000)),
+        activatedBy:"SYSTEM", activatedAt:firebase.firestore.Timestamp.fromDate(now),
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+      snap=await ref.get();
+    }
+
+    const d=snap.data()||{};
+    const expiry=d.licenseExpiry?.toDate ? d.licenseExpiry.toDate() : (d.licenseExpiry?new Date(d.licenseExpiry):null);
+    const expired=!!(expiry && Date.now()>=expiry.getTime());
+    const disabled=d.licenseStatus==="Disabled";
+
+    if(disabled || expired || d.licenseStatus!=="Active"){
+      window.CURRENT_LICENSE={...d,expired,disabled};
+      document.getElementById("root").style.display="none";
+      document.getElementById("auth-root").style.display="none";
+      showActivationLock(d,disabled);
+      return;
+    }
+    window.CURRENT_LICENSE={...d,expired:false,disabled:false};
+    removeActivationLock(); openSystem(); startLicenseMonitor();
+  }catch(err){
+    console.error("License verification failed:",err);
+    document.getElementById("root").style.display="none";
+    document.getElementById("auth-root").style.display="block";
+    authMessage("Account login succeeded, but license access could not be verified. Check Firebase Rules and try again.","#dc2626");
+  }
+});
+}
+window.firebaseReady.then(()=>startAuth()).catch(()=>{});
+function removeActivationLock(){const x=document.getElementById("activation-lock");if(x)x.remove();}
+let licenseMonitorTimer=null;
+function startLicenseMonitor(){
+  if(licenseMonitorTimer) clearInterval(licenseMonitorTimer);
+  licenseMonitorTimer=setInterval(async()=>{
+    const u=window.firebaseAuth?.currentUser; if(!u || window.CURRENT_LICENSE?.admin) return;
+    try{
+      const snap=await window.firebaseDb.collection("users").doc(u.uid).get();
+      const d=snap.data()||{};
+      const expiry=d.licenseExpiry?.toDate?d.licenseExpiry.toDate():(d.licenseExpiry?new Date(d.licenseExpiry):null);
+      const expired=!!(expiry && Date.now()>=expiry.getTime());
+      if(d.licenseStatus!=="Active" || expired){
+        window.CURRENT_LICENSE={...d,expired,disabled:d.licenseStatus==="Disabled"};
+        document.getElementById("root").style.display="none"; document.getElementById("auth-root").style.display="none";
+        showActivationLock(d,d.licenseStatus==="Disabled");
+      }
+    }catch(e){console.warn("License monitor:",e.message||e);}
+  },60000);
+}
+function showActivationLock(data,disabled){
+  removeActivationLock();
+  const type=data.licenseType||"Trial";
+  const expiry=data.licenseExpiry?.toDate?data.licenseExpiry.toDate():null;
+  const box=document.createElement("div");
+  box.id="activation-lock"; box.className="activation-lock";
+  box.innerHTML=`<div class="activation-card">
+    <div style="font-size:52px">🔒</div><h2>Software Locked</h2>
+    <span class="activation-pill">${disabled?"DISABLED":"LICENSE EXPIRED"}</span>
+    <p>${disabled?"Your account has been disabled by the administrator.":"Your "+type+" access has expired."}</p>
+    <p><b>Registered Email:</b><br>${window.firebaseAuth.currentUser?.email||""}</p>
+    <p><b>License:</b> ${type}<br><b>Expiry:</b> ${expiry?expiry.toLocaleString("en-PK"):"—"}</p>
+    <p>Contact the administrator to activate your account again.</p>
+    <p><b>WhatsApp: 0314-7597544</b></p>
+    <button onclick="window.logoutSystem()" style="background:#dc2626;color:#fff;border:0;border-radius:10px;padding:12px 22px;font-weight:700;cursor:pointer">Logout</button>
+  </div>`;
+  document.body.appendChild(box);
+}
+window.logoutSystem=async function(){
+  try{
+    document.getElementById("root").style.display="none";
+    document.getElementById("auth-root").style.display="block";
+    await window.firebaseAuth.signOut();
+  }finally{
+    location.reload();
+  }
+};
+</script>
+<script type="text/babel">
+const {useState,useEffect,useMemo,useRef}=React;
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const today=()=>{let d=new Date(),o=d.getTimezoneOffset();return new Date(d.getTime()-o*60000).toISOString().slice(0,10)};
+const thisMonth=()=>today().slice(0,7);
+const money=v=>"Rs. "+Number(v||0).toLocaleString("en-PK");
+const dateFmt=v=>v?new Date(v+"T00:00:00").toLocaleDateString("en-PK",{year:"numeric",month:"short",day:"numeric"}):"-";
+const monthFmt=v=>{if(!v)return"-";let [y,m]=v.split("-");return new Date(+y,+m-1,1).toLocaleDateString("en-US",{month:"long",year:"numeric"})};
+
+function Icon({n}){return <span className="inline-flex items-center justify-center text-lg">{({dashboard:"📊",students:"🎓",fees:"💰",expenses:"💸",salary:"💵",teacher:"👨‍🏫",attendance:"📝",plus:"＋",edit:"✏️",del:"🗑️",search:"🔎",menu:"☰",close:"✕",save:"💾",warn:"⚠️",chart:"📈",backup:"💾",settings:"⚙️"}[n]||"•")}</span>}
+
+function App(){
+ const [students,setStudents]=useState([]),[fees,setFees]=useState([]),[expenses,setExpenses]=useState([]),[salaries,setSalaries]=useState([]),[teachers,setTeachers]=useState([]),[copies,setCopies]=useState([]),[otherAmounts,setOtherAmounts]=useState([]),[attendance,setAttendance]=useState([]),[deletedRecords,setDeletedRecords]=useState([]);
+ const [tab,setTab]=useState("dashboard"),[mobile,setMobile]=useState(false),[feeMonth,setFeeMonth]=useState(thisMonth()),[reportPeriod,setReportPeriod]=useState("Monthly"),[reportDate,setReportDate]=useState(today()),[feeStudentSearch,setFeeStudentSearch]=useState(""),[selectedFeeStudents,setSelectedFeeStudents]=useState([]);
+ const [schoolName,setSchoolName]=useState("SCHOOL NAME");
+ const [modal,setModal]=useState(null),[editing,setEditing]=useState(null),[search,setSearch]=useState("");
+ const [cloudUid,setCloudUid]=useState(()=>window.CURRENT_UID||"");
+ const [cloudReady,setCloudReady]=useState(false);
+ const [darkMode,setDarkMode]=useState(()=>localStorage.getItem("al_faisal_theme")==="dark");
+ const [liveDate,setLiveDate]=useState(new Date());
+ useEffect(()=>{localStorage.setItem("al_faisal_theme",darkMode?"dark":"light")},[darkMode]);
+ useEffect(()=>{const t=setInterval(()=>setLiveDate(new Date()),1000);return()=>clearInterval(t)},[]);
+
+ // Every collection is loaded only from the CURRENT Firebase user's private UID path.
+ useEffect(()=>{
+   let stops=[];
+   const stopAuth=window.firebaseAuth.onAuthStateChanged(user=>{
+     stops.forEach(x=>x()); stops=[];
+     if(!user){
+       setCloudUid(""); setCloudReady(false);
+       setStudents([]); setFees([]); setExpenses([]); setSalaries([]); setTeachers([]); setCopies([]); setOtherAmounts([]); setAttendance([]); setDeletedRecords([]);
+       return;
+     }
+     // Clear the previous account immediately before loading the new account.
+     const uid=user.uid;
+     setCloudUid(uid); setCloudReady(false);
+     setStudents([]); setFees([]); setExpenses([]); setSalaries([]); setTeachers([]); setCopies([]); setOtherAmounts([]); setAttendance([]); setDeletedRecords([]);
+     setSchoolName("Faisal Public High School");
+
+     // Every record is strictly under the CURRENT Firebase Auth UID.
+     const base=window.firebaseDb.collection("users").doc(uid);
+     const watch=(name,setter)=>stops.push(base.collection(name).onSnapshot(snap=>{
+       const active=window.firebaseAuth.currentUser;
+       if(!active || active.uid!==uid) return;
+       setter(snap.docs.map(d=>({id:d.id,...d.data()})));
+     },err=>{ console.error("Private "+name+" load failed:",err); setter([]); }));
+     watch("students",setStudents);
+     watch("fees",setFees);
+     watch("expenses",setExpenses);
+     watch("teachers",setTeachers);
+     watch("salaries",setSalaries);
+     watch("copies",setCopies);
+     watch("otherAmounts",setOtherAmounts);
+     watch("attendance",setAttendance);
+     watch("deletedRecords",setDeletedRecords);
+     base.get().then(async profileSnap=>{
+       // STRICT PRIVATE ACCOUNT MODE:
+       // Never copy/migrate any legacy/shared data into a newly authenticated account.
+       // A new Firebase UID starts with an empty account.
+       const active=window.firebaseAuth.currentUser;
+       if(!active || active.uid!==uid) return;
+       const d=profileSnap.data()||{};
+       if(d.schoolName) setSchoolName(d.schoolName);
+       else await base.set({
+         schoolName:"SCHOOL NAME",
+         privateUid:uid,
+         privateAccountVersion:3,
+         createdAt:firebase.firestore.FieldValue.serverTimestamp()
+       },{merge:true});
+       setCloudReady(true);
+     }).catch(e=>{console.error("Profile load failed:",e);setCloudReady(true)});
+   });
+   return ()=>{stopAuth();stops.forEach(x=>x())};
+ },[]);
+
+ const privateCollection=(name)=>{
+   if(!cloudUid) throw new Error("Please login first.");
+   return window.firebaseDb.collection("users").doc(cloudUid).collection(name);
+ };
+ const assertCurrentUser=()=>{
+   const active=window.firebaseAuth.currentUser;
+   if(!active || !cloudUid || active.uid!==cloudUid) throw new Error("Session changed. Please login again.");
+   return active.uid;
+ };
+ const writeRecord=async(name,id,data)=>{
+   try{
+     const activeUid=assertCurrentUser();
+     await window.firebaseDb.collection("users").doc(activeUid).collection(name).doc(id)
+       .set({...data,ownerUid:activeUid,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+   }catch(e){ console.error("Save failed:",e); alert("Cloud save failed: "+(e.message||e)); }
+ };
+ const loadDeletedRecords=async()=>{
+   try{
+     const activeUid=assertCurrentUser();
+     const snap=await window.firebaseDb.collection("users").doc(activeUid).collection("deletedRecords").get();
+     const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+     setDeletedRecords(rows);
+     return rows;
+   }catch(e){ console.error("Deleted records load failed:",e); return []; }
+ };
+ const deleteRecord=async(name,id)=>{
+   try{
+     const activeUid=assertCurrentUser();
+     const ref=window.firebaseDb.collection("users").doc(activeUid).collection(name).doc(String(id));
+     const snap=await ref.get();
+     if(!snap.exists) throw new Error("Record not found.");
+     const backupData=snap.data()||{};
+     const trashRef=window.firebaseDb.collection("users").doc(activeUid).collection("deletedRecords").doc();
+     const trashData={originalCollection:name, originalId:String(id), record:backupData,
+       deletedAt:firebase.firestore.FieldValue.serverTimestamp(), ownerUid:activeUid};
+     // First create a permanent recycle-bin copy under the CURRENT user's UID.
+     // The copy is saved BEFORE the original is removed.
+     await trashRef.set(trashData);
+     await ref.delete();
+     // Re-read the recycle bin after the delete so Backup never depends only on
+     // snapshot timing/race conditions. This also makes the deleted record visible
+     // immediately after deleting a Student/Fee/Expense/Salary/Other Amount.
+     setDeletedRecords(prev=>[{id:trashRef.id,...trashData,deletedAt:new Date()},...prev]);
+     await loadDeletedRecords();
+   }catch(e){ console.error("Delete failed:",e); alert("Cloud delete failed: "+(e.message||e)); }
+ };
+ const restoreDeletedRecord=async(item)=>{
+   try{
+     const activeUid=assertCurrentUser();
+     if(!item?.id||!item?.originalCollection||!item?.originalId||!item?.record) throw new Error("Invalid deleted record.");
+     const ok=confirm("Restore this deleted record?"); if(!ok)return;
+     const base=window.firebaseDb.collection("users").doc(activeUid);
+     await base.collection(item.originalCollection).doc(String(item.originalId)).set({...item.record,ownerUid:activeUid,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+     await base.collection("deletedRecords").doc(item.id).delete();
+     alert("Record restored successfully.");
+   }catch(e){console.error("Restore deleted record failed:",e);alert("Restore failed: "+(e.message||e));}
+ };
+ const permanentlyDeleteTrash=async(item)=>{
+   try{const activeUid=assertCurrentUser();if(!item?.id)return;if(!confirm("Permanently remove this backup copy? This cannot be undone."))return;await window.firebaseDb.collection("users").doc(activeUid).collection("deletedRecords").doc(item.id).delete();}catch(e){alert("Delete failed: "+(e.message||e));}
+ };
+
+ // School name is also stored inside this user's private profile document.
+ useEffect(()=>{
+   if(!cloudUid||!cloudReady)return;
+   const t=setTimeout(()=>window.firebaseDb.collection("users").doc(cloudUid).set({schoolName,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}),400);
+   return ()=>clearTimeout(t);
+ },[cloudUid,cloudReady,schoolName]);
+
+ const savePrivate=async(name,data,existingId)=>{
+   const id=existingId||uid();
+   await writeRecord(name,id,data);
+   return id;
+ };
+
+ const m=thisMonth(),td=today();
+ const expectedFee=students.filter(x=>x.status!=="Inactive"&&String(x.feeType||"").toLowerCase()!=="free"&&x.isFree!==true).reduce((a,x)=>a+(+x.monthlyFee||0),0); const monthlyFees=fees.filter(x=>(x.month||x.date?.slice(0,7))===m&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0); const paidFee=monthlyFees; const remainingFee=Math.max(0,expectedFee-paidFee);
+ const todayFees=fees.filter(x=>x.date===td&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0);
+ const monthlySalary=salaries.filter(x=>x.month===m).reduce((a,x)=>a+ +x.amount,0);
+ const monthlyExpense=expenses.filter(x=>(x.month||x.date?.slice(0,7))===m).reduce((a,x)=>a+ +x.amount,0);
+ const net=monthlyFees-monthlyExpense;
+ const activeTeachers=teachers.filter(t=>t.status!=="Inactive").length;
+ const activeStudents=students.filter(s=>s.status!=="Inactive").length;
+ const defaulters=students.filter(s=>s.status!=="Inactive"&&String(s.feeType||"").toLowerCase()!=="free"&&s.isFree!==true&&!fees.some(f=>String(f.studentId)===String(s.id)&&(f.month||f.date?.slice(0,7))===m&&f.paymentStatus==="Paid"));
+
+ function nav(t){if(t==="activation"&&!isAdmin)return;setTab(t);setMobile(false);setSearch("")}
+ function close(){setModal(null);setEditing(null)}
+ async function submitStudent(d){await savePrivate("students",d,editing?.id);close()}
+ async function submitTeacher(d){await savePrivate("teachers",d,editing?.id);close()}
+ async function submitFee(d){let st=students.find(x=>String(x.id)===String(d.studentId));d.studentName=st?.name||"Unknown";d.className=st?.className||d.className||"";d.rollNo=st?.rollNo||d.rollNo||"";await savePrivate("fees",d,editing?.id);close()}
+ async function submitOtherAmount(d,existingId){let st=students.find(x=>String(x.id)===String(d.studentId));d.studentName=st?.name||"Unknown";d.className=st?.className||d.className||"";d.rollNo=st?.rollNo||d.rollNo||"";d.amount=+d.amount||0;await savePrivate("otherAmounts",d,existingId)}
+ async function markStudentFeePaid(student,month,opts={}){
+  const activeUid=assertCurrentUser();
+  if(fees.some(f=>String(f.studentId)===String(student.id)&&(f.month||f.date?.slice(0,7))===month&&f.paymentStatus==="Paid")){if(!opts.silent)alert(student.name+" is already Paid for "+month+".");return false;}
+  const amount=Number(student.monthlyFee||0);
+  if(amount<=0){if(!opts.silent)alert("Monthly fee is not set for "+student.name+".");return false;}
+  if(!opts.silent&&!confirm("Mark "+student.name+" as PAID for "+month+"?"))return false;
+  try{await window.firebaseDb.collection("users").doc(activeUid).collection("fees").doc(uid()).set({studentId:student.id,studentName:student.name||"",className:student.className||"",rollNo:student.rollNo||"",amount,month,date:today(),paymentStatus:"Paid",paymentType:"Monthly Fee",ownerUid:activeUid,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});if(!opts.silent)alert("Fee marked Paid successfully.");return true;}
+  catch(e){console.error(e);if(!opts.silent)alert("Fee save failed: "+(e.message||e));return false;}
+ }
+ async function submitExpense(d){await savePrivate("expenses",{...d,autoSalaryId:editing?.autoSalaryId||null},editing?.id);close()}
+ async function submitSalary(d){
+   if(editing){
+     await savePrivate("salaries",d,editing.id);
+     const linked=expenses.find(e=>e.autoSalaryId===editing.id);
+     if(linked) await savePrivate("expenses",{...linked,name:`Teacher Salary - ${d.teacherName} - ${monthFmt(d.month)}`,amount:+d.amount,date:d.paymentDate,month:d.month,notes:d.notes||"",expenseType:"Teacher Salary",autoSalaryId:editing.id},linked.id);
+   }else{
+     const id=uid();
+     await savePrivate("salaries",d,id);
+     await savePrivate("expenses",{name:`Teacher Salary - ${d.teacherName} - ${monthFmt(d.month)}`,amount:+d.amount,date:d.paymentDate,month:d.month,notes:d.notes||"",autoSalaryId:id,expenseType:"Teacher Salary"});
+   }
+   close()
+ }
+ async function del(type,id){
+   if(!confirm("Delete this record?"))return;
+   if(type==="student")await deleteRecord("students",id);
+   if(type==="teacher")await deleteRecord("teachers",id);
+   if(type==="fee")await deleteRecord("fees",id);
+   if(type==="otherAmount")await deleteRecord("otherAmounts",id);
+   if(type==="expense"){let e=expenses.find(x=>x.id===id);if(e?.autoSalaryId){alert("Delete this expense from Teacher Salary.");return}await deleteRecord("expenses",id)}
+   if(type==="salary"){
+     const linked=expenses.filter(x=>x.autoSalaryId===id);
+     await deleteRecord("salaries",id);
+     for(const e of linked) await deleteRecord("expenses",e.id);
+   }
+   if(type==="copy")await deleteRecord("copies",id);
+   if(type==="attendance")await deleteRecord("attendance",id);
+ }
+
+ const backupCollections=["students","fees","expenses","salaries","teachers","copies","otherAmounts","attendance"];
+ const createBackup=()=>{
+   const active=window.firebaseAuth.currentUser;
+   if(!active){alert("Please login first.");return;}
+   const payload={backupVersion:1,software:"AL - FAISAL EDUCATION MANAGEMENT SYSTEM",exportedAt:new Date().toISOString(),uid:active.uid,email:active.email||"",schoolName,collections:Object.fromEntries(backupCollections.map(k=>[k,({students,fees,expenses,salaries,teachers,copies,otherAmounts,attendance}[k]||[])]))};
+   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`AL-Faisal-Backup-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+   alert("Complete backup downloaded successfully.");
+ };
+ const restoreBackup=async(file)=>{
+   if(!file)return;
+   const active=window.firebaseAuth.currentUser;if(!active){alert("Please login first.");return;}
+   try{
+     const payload=JSON.parse(await file.text());
+     if(!payload||payload.backupVersion!==1||!payload.collections)throw new Error("Invalid backup file.");
+     const ok=confirm(payload.uid&&payload.uid!==active.uid?"This backup belongs to another account. Restore it into the currently logged-in account anyway?":"Restore this backup? Existing records with the same ID will be replaced.");
+     if(!ok)return;
+     const base=window.firebaseDb.collection("users").doc(active.uid);let total=0;
+     for(const name of backupCollections){for(const row of (Array.isArray(payload.collections[name])?payload.collections[name]:[])){const id=row?.id;if(!id)continue;const data={...row};delete data.id;await base.collection(name).doc(String(id)).set(data,{merge:true});total++;}}
+     if(payload.schoolName){await base.set({schoolName:payload.schoolName,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});setSchoolName(payload.schoolName);}
+     alert(`Backup restored successfully. ${total} records restored.`);
+   }catch(e){console.error("Restore failed:",e);alert("Backup restore failed: "+(e.message||e));}
+ };
+ const isAdmin=(window.firebaseAuth.currentUser?.email||"").toLowerCase()==="p.zain0314@gmail.com";
+  const navs=[["dashboard","Dashboard","dashboard"],["students","Students","students"],["fees","Fee Collection","fees"],["expenses","Expenses","expenses"],["salary","Teacher Salary","salary"],["teachers","Teacher Service","teacher"],["attendance","Attendance","attendance"],["classes","Classes","students"],["other","Other Amount","fees"],["student-records","Student Records","students"],["reports","Reports","chart"],["backup","Backup","backup"],...(isAdmin?[["activation","Customer Activation","warn"]]:[]),["settings","Settings","settings"]];
+ return <div className={`min-h-screen ${darkMode?"dark-mode":""}`}>
+  {mobile&&<div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={()=>setMobile(false)}/>}
+  <aside className={`fixed z-50 inset-y-0 left-0 w-72 bg-slate-950 text-white flex flex-col transition-transform ${mobile?"translate-x-0":"-translate-x-full"} lg:translate-x-0`}>
+   <div className="p-5 border-b border-slate-800 flex justify-between shrink-0"><div><div className="text-3xl">🎓</div><b className="text-lg">{schoolName}</b></div><button className="lg:hidden" onClick={()=>setMobile(false)}><Icon n="close"/></button></div>
+   <nav className="p-4 space-y-2 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">{navs.map(([id,label,ic])=><button key={id} onClick={()=>nav(id)} className={`w-full text-left p-3 rounded-xl flex gap-3 items-center ${tab===id?"bg-blue-600":"hover:bg-slate-800 text-slate-300"}`}><Icon n={ic}/>{label}</button>)}</nav>
+   <div className="w-full p-4 shrink-0"><div className="bg-slate-900 rounded-xl p-3 text-sm text-green-400">☁️ Private Firebase Cloud Sync</div><div className="mt-2 text-xs text-slate-300 break-all">🔐 {window.firebaseAuth.currentUser?.email||"Private account"}</div><div className="mt-2 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2"><div className="text-[10px] uppercase tracking-wider text-slate-400">Account Activation</div><div className="mt-0.5 text-sm font-extrabold text-white">{window.CURRENT_LICENSE?.admin ? "ADMIN" : (window.CURRENT_LICENSE?.licenseType||"Trial")}{window.CURRENT_LICENSE?.licenseType && !window.CURRENT_LICENSE?.admin ? " Access" : ""}</div>{!window.CURRENT_LICENSE?.admin && <div className="text-[10px] text-slate-400 mt-0.5">Status: {window.CURRENT_LICENSE?.licenseStatus||"Active"}{window.CURRENT_LICENSE?.licenseType==="Lifetime" ? " • No Expiry" : ""}</div>}</div><button onClick={()=>window.logoutSystem()} className="w-full mt-2 bg-red-600 text-white rounded-xl p-3 font-bold">🚪 Logout</button></div>
+  </aside>
+  <main className="lg:ml-72">
+   <header className="sticky top-0 z-30 bg-white border-b p-3 sm:p-4 flex items-center gap-3"><button className="lg:hidden" onClick={()=>setMobile(true)}><Icon n="menu"/></button><div className="flex-1"><h1 className="text-xl font-bold">{tab==="other"?"Other Amount":navs.find(x=>x[0]===tab)?.[1]}</h1><p className="text-xs text-slate-500">{schoolName} Management System</p></div><div className="flex items-center gap-2"><div title="Day, Time, Month, Date, Year" className="date-time-box hidden sm:flex items-center gap-1 px-2 h-8 rounded-lg border shadow-sm text-[10px] font-semibold whitespace-nowrap"><span>📅 Day: {liveDate.toLocaleDateString(undefined,{weekday:"long"})}</span><span>🕒 Time: {liveDate.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"})}</span><span>Month: {liveDate.toLocaleDateString(undefined,{month:"long"})}</span><span>Date: {liveDate.toLocaleDateString(undefined,{day:"2-digit"})}</span><span>Year: {liveDate.toLocaleDateString(undefined,{year:"numeric"})}</span></div><button title={darkMode?"Light Mode":"Dark Mode"} onClick={()=>setDarkMode(v=>!v)} className="theme-toggle w-10 h-10 rounded-xl border flex items-center justify-center text-lg font-bold shadow-sm">{darkMode?"☀️":"🌙"}</button></div></header>
+   <div className="p-4 sm:p-6">
+    {tab==="dashboard"&&<Dashboard students={students} teachers={teachers} fees={fees} expenses={expenses} salaries={salaries} monthlyFees={monthlyFees} paidFee={paidFee} remainingFee={remainingFee} expectedFee={expectedFee} todayFees={todayFees} monthlySalary={monthlySalary} monthlyExpense={monthlyExpense} net={net} activeStudents={activeStudents} activeTeachers={activeTeachers} defaulters={defaulters} month={m} nav={nav} schoolName={schoolName} otherAmounts={otherAmounts}/>}
+    {tab==="activation"&&isAdmin&&<AdminActivationPanel/>}
+    {tab==="settings"&&<div className="max-w-2xl bg-white rounded-2xl p-6 shadow-card border border-slate-200"><h2 className="text-2xl font-extrabold mb-2">School Settings</h2><p className="text-slate-500 mb-5">Change your school name. The new name is saved privately to the logged-in Firebase account.</p><label className="block text-sm font-semibold mb-2">SCHOOL NAME</label><input className="w-full border rounded-xl p-3" value={schoolName} onChange={e=>setSchoolName(e.target.value)} placeholder="Enter your school name"/><button className="mt-5 px-5 py-3 rounded-xl bg-blue-600 text-white font-bold" onClick={()=>{alert("School name saved privately to your account!")}}>Save Changes</button></div>}
+    {tab==="students"&&<Records title={`Students (${students.length})`} desc="Manage student records." add="Add Student" search={search} setSearch={setSearch} rows={students.filter(x=>`${x.name} ${x.fatherName} ${x.className} ${x.rollNo}`.toLowerCase().includes(search.toLowerCase()))} cols={["Student","Father","Class","Roll No.","Monthly Fee","Fee Type","Status"]} render={x=><>{<td className="p-3 font-semibold">{x.name}</td>}<td className="p-3">{x.fatherName||"-"}</td><td className="p-3">{x.className||"-"}</td><td className="p-3">{x.rollNo||"-"}</td><td className="p-3 text-right">{money(x.monthlyFee)}</td><td className="p-3 text-center font-semibold">{String(x.feeType||"").toLowerCase()==="free"||x.isFree===true?"Free":"Fee Paying"}</td><td className="p-3 text-center">{x.status||"Active"}</td></>} onAdd={()=>setModal("student")} onEdit={x=>{setEditing(x);setModal("student")}} onDelete={x=>del("student",x.id)}/>}
+    {tab==="teachers"&&<Records title={`Teacher Service (${teachers.length})`} desc="Manage teacher service and employment records." add="Add Teacher" search={search} setSearch={setSearch} rows={teachers.filter(x=>`${x.name} ${x.subject} ${x.qualification} ${x.phone}`.toLowerCase().includes(search.toLowerCase()))} cols={["Teacher","Subject","Qualification","Joining Date","Monthly Salary","Status"]} render={x=><><td className="p-3 font-semibold">{x.name}</td><td className="p-3">{x.subject||"-"}</td><td className="p-3">{x.qualification||"-"}</td><td className="p-3">{dateFmt(x.joiningDate)}</td><td className="p-3 text-right">{money(x.monthlySalary)}</td><td className="p-3 text-center">{x.status||"Active"}</td></>} onAdd={()=>setModal("teacher")} onEdit={x=>{setEditing(x);setModal("teacher")}} onDelete={x=>del("teacher",x.id)}/>}
+    {tab==="fees"&&<div className="space-y-5">
+      {(()=>{const mf=fees.filter(x=>(x.month||x.date?.slice(0,7))===feeMonth);const allActive=students.filter(s=>s.status!=="Inactive");const active=allActive.filter(s=>String(s.feeType||"").toLowerCase()!=="free"&&s.isFree!==true);const expected=active.reduce((a,x)=>a+(+x.monthlyFee||0),0);const collected=mf.filter(x=>x.paymentStatus==="Paid").reduce((a,x)=>a+(+x.amount||0),0);const outstanding=Math.max(0,expected-collected);const paidIds=new Set(mf.filter(x=>x.paymentStatus==="Paid").map(x=>String(x.studentId)));const defaulterStudents=active.filter(st=>!paidIds.has(String(st.id)));const defaulters=defaulterStudents.length;const filteredAll=allActive.filter(st=>`${st.name||""} ${st.fatherName||""} ${st.className||""} ${st.rollNo||""}`.toLowerCase().includes(feeStudentSearch.toLowerCase().trim()));const filteredActive=filteredAll.filter(st=>String(st.feeType||"").toLowerCase()!=="free"&&st.isFree!==true);const selectable=filteredActive.filter(st=>!paidIds.has(String(st.id)));const allSelected=selectable.length>0&&selectable.every(st=>selectedFeeStudents.includes(String(st.id)));const selectedCount=selectedFeeStudents.filter(id=>selectable.some(st=>String(st.id)===id)).length;return <>
+        <div className="bg-white rounded-2xl p-5 shadow-card border border-slate-200">
+          <div className="flex flex-col xl:flex-row xl:items-end gap-4">
+            <div className="shrink-0"><h2 className="text-2xl font-extrabold text-slate-800">Fee Collection</h2><p className="text-sm text-slate-500 mt-1">Collect and manage student monthly fees.</p></div>
+            <label className="block xl:ml-4"><span className="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1">Month</span><input type="month" value={feeMonth} onChange={e=>{setFeeMonth(e.target.value);setSelectedFeeStudents([])}} className="border border-slate-300 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"/></label>
+            <div className="relative flex-1 min-w-0 xl:max-w-2xl"><span className="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1">Search Student</span><input value={feeStudentSearch} onChange={e=>setFeeStudentSearch(e.target.value)} placeholder="Search by Name, Father Name, Class, Roll No..." className="w-full border border-slate-300 rounded-xl pl-4 pr-11 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"/><span className="absolute right-4 bottom-3 text-slate-400">🔎</span></div>
+            <button onClick={()=>setFeeStudentSearch("")} className="px-5 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-700 hover:bg-slate-50">Clear Search</button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl p-5 shadow-card border border-blue-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Expected</p><h3 className="text-3xl font-extrabold mt-2 text-slate-800">{money(expected)}</h3><p className="text-xs mt-2 text-slate-500">{monthFmt(feeMonth)}</p></div>
+          <div className="bg-white rounded-2xl p-5 shadow-card border border-emerald-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Collected · {monthFmt(feeMonth)}</p><h3 className="text-3xl font-extrabold mt-2 text-emerald-600">{money(collected)}</h3><p className="text-xs mt-2 text-slate-500">Paid fees</p></div>
+          <div className="bg-white rounded-2xl p-5 shadow-card border border-orange-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Outstanding</p><h3 className="text-3xl font-extrabold mt-2 text-orange-500">{money(outstanding)}</h3><p className="text-xs mt-2 text-slate-500">Remaining fee</p></div>
+          <div className="bg-white rounded-2xl p-5 shadow-card border border-rose-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Defaulters</p><h3 className="text-3xl font-extrabold mt-2 text-rose-600">{defaulters}</h3><p className="text-xs mt-2 text-slate-500">Students not paid</p></div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-slate-200">
+          <div className="p-5 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"><div><h3 className="font-extrabold text-lg text-slate-800">Fee ledger — {monthFmt(feeMonth)}</h3><p className="text-sm text-slate-500 mt-1">{filteredAll.length} students shown</p></div><div className="flex flex-wrap items-center gap-2"><span className="px-3 py-2 rounded-lg bg-slate-100 text-sm font-bold text-slate-700">{selectedCount} selected</span><button disabled={!selectedCount} onClick={async()=>{const chosen=active.filter(st=>selectedFeeStudents.includes(String(st.id))&&!paidIds.has(String(st.id)));for(const st of chosen){const amount=+st.monthlyFee||0;if(amount>0)await markStudentFeePaid(st,feeMonth,{silent:true})}setSelectedFeeStudents([]);if(chosen.length)alert(chosen.length+" student fee(s) marked Paid successfully.");}} className={`px-4 py-2 rounded-lg font-bold text-white ${selectedCount?"bg-emerald-600 hover:bg-emerald-700":"bg-slate-300 cursor-not-allowed"}`}>✓ Mark Selected Paid</button></div></div>
+          {!filteredAll.length?<div className="p-10 text-center text-slate-500">No student found for “{feeStudentSearch}”.</div>:<div className="overflow-x-auto"><table className="w-full text-sm min-w-[980px]"><thead className="bg-slate-50"><tr><th className="p-3 text-center w-12"><input type="checkbox" checked={allSelected} onChange={e=>setSelectedFeeStudents(e.target.checked?Array.from(new Set([...selectedFeeStudents,...selectable.map(st=>String(st.id))])):selectedFeeStudents.filter(id=>!selectable.some(st=>String(st.id)===id)))} /></th><th className="p-3 text-left">Roll</th><th className="p-3 text-left">Student</th><th className="p-3 text-left">Class</th><th className="p-3 text-left">Month</th><th className="p-3 text-right">Amount</th><th className="p-3 text-left">Due</th><th className="p-3 text-center">Status</th><th className="p-3 text-center">Action</th></tr></thead><tbody>{filteredAll.map(st=>{const isFree=String(st.feeType||"").toLowerCase()==="free"||st.isFree===true;const paid=paidIds.has(String(st.id));const checked=selectedFeeStudents.includes(String(st.id));return <tr key={st.id} className={`border-t border-slate-100 ${isFree?"bg-sky-50":paid?"bg-emerald-50":"hover:bg-slate-50"}`}><td className="p-3 text-center"><input type="checkbox" disabled={paid||isFree} checked={checked&&!paid&&!isFree} onChange={e=>setSelectedFeeStudents(e.target.checked?[...selectedFeeStudents,String(st.id)]:selectedFeeStudents.filter(id=>id!==String(st.id)))} /></td><td className="p-3 font-mono">{st.rollNo||"-"}</td><td className="p-3 font-semibold">{st.name}</td><td className="p-3">{st.className||"-"}</td><td className="p-3">{monthFmt(feeMonth)}</td><td className="p-3 text-right font-bold">{isFree?"Free":money(st.monthlyFee)}</td><td className="p-3">{isFree?"—":dateFmt((()=>{const d=new Date(feeMonth+"-10T00:00:00");return isNaN(d)?today():d.toISOString().slice(0,10)})())}</td><td className="p-3 text-center"><span className={`px-3 py-1 rounded-md text-xs font-bold ${isFree?"bg-sky-100 text-sky-700":paid?"bg-emerald-100 text-emerald-700":"bg-amber-100 text-amber-700"}`}>{isFree?"FREE":paid?"PAID":"PENDING"}</span></td><td className="p-3 text-center">{isFree?<span className="px-4 py-2 rounded-lg font-bold bg-sky-100 text-sky-700">Free Admission</span>:<button disabled={paid} onClick={()=>markStudentFeePaid(st,feeMonth)} className={`px-4 py-2 rounded-lg font-bold text-white ${paid?"bg-slate-400 cursor-not-allowed":"bg-emerald-500 hover:bg-emerald-600"}`}>{paid?"✓ Paid":"Mark paid"}</button>}</td></tr>;})}</tbody></table></div>}
+        </div>
+      </>})()}
+    </div>}
+        {tab==="expenses"&&<Records title="Expenses" desc="Teacher salaries are automatically included as expenses." add="Add Expense" search={search} setSearch={setSearch} rows={expenses.filter(x=>`${x.name} ${x.amount}`.toLowerCase().includes(search.toLowerCase()))} cols={["Expense","Date","Month","Amount","Type"]} render={x=><><td className="p-3 font-semibold">{x.name}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3">{monthFmt(x.month)}</td><td className="p-3 text-right text-red-600 font-bold">{money(x.amount)}</td><td className="p-3">{x.autoSalaryId?"Teacher Salary":"General"}</td></>} onAdd={()=>setModal("expense")} onEdit={x=>{if(x.autoSalaryId){alert("Please edit this record from Teacher Salary.");return}setEditing(x);setModal("expense")}} onDelete={x=>del("expense",x.id)}/>}
+    {tab==="attendance"&&<AttendancePage students={students} teachers={teachers} attendance={attendance} save={savePrivate} del={id=>del("attendance",id)}/>}
+    {tab==="classes"&&<ClassesPage students={students} nav={nav}/>} 
+    {tab==="other"&&<OtherAmountPage students={students} otherAmounts={otherAmounts} save={submitOtherAmount} del={id=>del("otherAmount",id)}/>}
+    {tab==="student-records"&&<StudentRecordsPage schoolName={schoolName} students={students} fees={fees} otherAmounts={otherAmounts} copies={copies} attendance={attendance}/>} 
+    {tab==="backup"&&<BackupPage createBackup={createBackup} restoreBackup={restoreBackup} deletedRecords={deletedRecords} refreshDeletedRecords={loadDeletedRecords} restoreDeletedRecord={restoreDeletedRecord} permanentlyDeleteTrash={permanentlyDeleteTrash} counts={{students:students.length,fees:fees.length,expenses:expenses.length,otherAmounts:otherAmounts.length}}/>} 
+   {tab==="salary"&&<Records title="Teacher Salary" desc="Salary payments automatically create matching expenses." add="Add Teacher Salary" search={search} setSearch={setSearch} rows={salaries.filter(x=>`${x.teacherName} ${x.month} ${x.amount}`.toLowerCase().includes(search.toLowerCase()))} cols={["Teacher","Month","Amount","Payment Date","Notes"]} render={x=><><td className="p-3 font-semibold">{x.teacherName}</td><td className="p-3">{monthFmt(x.month)}</td><td className="p-3 text-right text-orange-600 font-bold">{money(x.amount)}</td><td className="p-3">{dateFmt(x.paymentDate)}</td><td className="p-3">{x.notes||"-"}</td></>} onAdd={()=>setModal("salary")} onEdit={x=>{setEditing(x);setModal("salary")}} onDelete={x=>del("salary",x.id)}/>}
+  {tab==="reports"&&<div className="space-y-5">
+  {(()=>{const d=new Date(reportDate+"T00:00:00");const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),monthKey=`${y}-${m}`;const dayStart=new Date(d);const dayEnd=new Date(d);dayEnd.setDate(d.getDate()+1);const weekStart=new Date(d);weekStart.setDate(d.getDate()-d.getDay());const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+7);
+   const match=(date)=>{if(!date)return false;const x=new Date(date+"T00:00:00");if(reportPeriod==="Daily")return date===reportDate;if(reportPeriod==="Weekly")return x>=weekStart&&x<weekEnd;if(reportPeriod==="Monthly")return date.slice(0,7)===monthKey;if(reportPeriod==="Yearly")return date.slice(0,4)===String(y);return false};
+   const feeRows=fees.filter(x=>x.paymentStatus==="Paid"&&match(x.date));const expenseRows=expenses.filter(x=>match(x.date));const feeTotal=feeRows.reduce((a,x)=>a+(+x.amount||0),0);const expenseTotal=expenseRows.reduce((a,x)=>a+(+x.amount||0),0);const net=feeTotal-expenseTotal;
+   return <>
+    <div className="bg-white rounded-2xl p-5 shadow-card border border-indigo-100">
+     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+      <div><h2 className="text-2xl font-extrabold">Reports</h2><p className="text-slate-500">Check fee collection and expenses by date and period.</p></div>
+      <div className="flex flex-col sm:flex-row gap-3">
+       <label><span className="block text-xs font-semibold mb-1">Calendar Date</span><input type="date" value={reportDate} onChange={e=>setReportDate(e.target.value)} className="border rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500"/></label>
+       <label><span className="block text-xs font-semibold mb-1">Report Type</span><select value={reportPeriod} onChange={e=>setReportPeriod(e.target.value)} className="border rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500"><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Yearly</option></select></label>
+      </div>
+     </div>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+     <div className="bg-gradient-to-br from-green-500 to-emerald-700 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-85">Collected Fee</p><h3 className="text-3xl font-extrabold mt-2">{money(feeTotal)}</h3><p className="text-xs mt-2 opacity-80">{reportPeriod} report</p></div>
+     <div className="bg-gradient-to-br from-red-500 to-orange-600 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-85">Expenses</p><h3 className="text-3xl font-extrabold mt-2">{money(expenseTotal)}</h3><p className="text-xs mt-2 opacity-80">{reportPeriod} report</p></div>
+     <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl p-5 shadow-card"><p className="text-sm opacity-85">Net Balance</p><h3 className="text-3xl font-extrabold mt-2">{money(net)}</h3><p className="text-xs mt-2 opacity-80">Fee − Expenses</p></div>
+    </div>
+    <div className="flex flex-wrap items-center gap-3 bg-white rounded-2xl p-4 shadow-card border border-slate-200"><label className="font-bold text-slate-700">📅 Collection Month</label><input type="month" value={monthKey} readOnly className="border rounded-lg p-2.5"/><span className="text-sm text-slate-500">Collection month follows the selected Calendar Date.</span></div>
+   <div className="grid xl:grid-cols-2 gap-5">
+     <div className="bg-white rounded-2xl shadow-card overflow-hidden"><div className="p-5 border-b"><h3 className="font-bold text-lg text-green-700">💰 Fee Report</h3><p className="text-sm text-slate-500">{feeRows.length} paid records</p></div><div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Student</th><th className="p-3 text-left">Date</th><th className="p-3 text-right">Amount</th></tr></thead><tbody>{feeRows.map(x=><tr className="border-t" key={x.id}><td className="p-3 font-semibold">{x.studentName}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 text-right text-green-600">{money(x.amount)}</td></tr>)}</tbody></table></div>{!feeRows.length&&<div className="p-8 text-center text-slate-500">No fee collection found.</div>}</div>
+     <div className="bg-white rounded-2xl shadow-card overflow-hidden"><div className="p-5 border-b"><h3 className="font-bold text-lg text-red-700">📉 Expense Report</h3><p className="text-sm text-slate-500">{expenseRows.length} expense records</p></div><div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Description</th><th className="p-3 text-left">Date</th><th className="p-3 text-right">Amount</th></tr></thead><tbody>{expenseRows.map(x=><tr className="border-t" key={x.id}><td className="p-3 font-semibold">{x.description||x.title||"Expense"}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 text-right text-red-600">{money(x.amount)}</td></tr>)}</tbody></table></div>{!expenseRows.length&&<div className="p-8 text-center text-slate-500">No expenses found.</div>}</div>
+    </div>
+   </>})()}
+ </div>}
+   </div>
+  </main>
+ {modal==="student"&&<StudentModal initial={editing} close={close} save={submitStudent}/>}
+  {modal==="teacher"&&<TeacherModal initial={editing} close={close} save={submitTeacher}/>}
+  {modal==="fee"&&<FeeModal initial={editing} students={students} close={close} save={submitFee}/>}
+  {modal==="expense"&&<ExpenseModal initial={editing} close={close} save={submitExpense}/>}
+  {modal==="salary"&&<SalaryModal initial={editing} teachers={teachers} close={close} save={submitSalary}/>}
+ </div>
+}
+
+
+
+function BackupPage({createBackup,restoreBackup,deletedRecords,refreshDeletedRecords,restoreDeletedRecord,permanentlyDeleteTrash,counts}){
+ const inputRef=useRef(null),[busy,setBusy]=useState(false),[refreshing,setRefreshing]=useState(false);
+ useEffect(()=>{(async()=>{setRefreshing(true);try{await refreshDeletedRecords()}finally{setRefreshing(false)}})()},[]);
+ const pick=async(e)=>{const file=e.target.files?.[0];e.target.value="";if(!file)return;setBusy(true);try{await restoreBackup(file)}finally{setBusy(false)}};
+ const label=x=>({students:"Student",fees:"Fee Collection",expenses:"Expense",salaries:"Teacher Salary",teachers:"Teacher Service",copies:"Copy Record",otherAmounts:"Other Amount",attendance:"Attendance"}[x]||x);
+ const title=x=>x?.record?.studentName||x?.record?.name||x?.record?.teacherName||x?.record?.description||x?.record?.email||x?.record?.title||"Deleted Record";
+ const when=x=>{try{const d=x?.deletedAt?.toDate?x.deletedAt.toDate():new Date(x?.deletedAt);return isNaN(d)?"—":d.toLocaleString("en-PK")}catch(e){return"—"}};
+ return <div className="space-y-5 backup-page">
+  <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-200">
+   <div className="flex items-center justify-between gap-3 flex-wrap">
+    <div><h2 className="text-2xl font-extrabold">💾 Backup & Restore</h2><p className="text-slate-500 mt-1">Apna complete data backup karein aur deleted records ko one-by-one restore karein.</p></div>
+    <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-2 font-bold text-blue-700">♻️ {deletedRecords.length} Deleted Records</div>
+   </div>
+   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+    <div className="rounded-xl border border-blue-200 bg-blue-50 p-4"><div className="text-xs font-bold text-blue-700">Students</div><div className="text-2xl font-extrabold text-blue-900 mt-1">{counts.students}</div></div>
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4"><div className="text-xs font-bold text-emerald-700">Fees</div><div className="text-2xl font-extrabold text-emerald-900 mt-1">{counts.fees}</div></div>
+    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4"><div className="text-xs font-bold text-rose-700">Expenses</div><div className="text-2xl font-extrabold text-rose-900 mt-1">{counts.expenses}</div></div>
+    <div className="rounded-xl border border-orange-200 bg-orange-50 p-4"><div className="text-xs font-bold text-orange-700">Other Amount</div><div className="text-2xl font-extrabold text-orange-900 mt-1">{counts.otherAmounts}</div></div>
+   </div>
+   <div className="grid md:grid-cols-2 gap-4 mt-5">
+    <div className="rounded-2xl border p-5"><div className="text-3xl mb-2">⬇️</div><h3 className="font-extrabold text-lg">Create Complete Backup</h3><p className="text-sm text-slate-500 mt-1">Students, fees, expenses, salaries, teachers, copies, Other Amount aur school name.</p><button onClick={createBackup} className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-3 font-bold">💾 Download Backup</button></div>
+    <div className="rounded-2xl border p-5"><div className="text-3xl mb-2">⬆️</div><h3 className="font-extrabold text-lg">Restore Complete Backup</h3><p className="text-sm text-slate-500 mt-1">Pehle download ki hui AL-Faisal backup JSON file select karein.</p><button disabled={busy} onClick={()=>inputRef.current?.click()} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white rounded-xl p-3 font-bold">{busy?"Restoring...":"♻️ Select Backup File"}</button><input ref={inputRef} type="file" accept=".json,application/json" className="hidden" onChange={pick}/></div>
+   </div>
+  </div>
+  <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-200">
+   <div className="flex items-center justify-between gap-3 flex-wrap"><div><h2 className="text-xl font-extrabold">♻️ Deleted Records — Restore One by One</h2><p className="text-sm text-slate-500 mt-1">Jo record delete hoga, yahan separately save hoga.</p></div><div className="flex items-center gap-2"><div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-2 font-bold text-amber-700">{deletedRecords.length} Deleted</div><button onClick={async()=>{setRefreshing(true);try{await refreshDeletedRecords()}finally{setRefreshing(false)}}} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold">{refreshing?"Refreshing...":"↻ Refresh Deleted"}</button></div></div>
+   {deletedRecords.length===0
+    ?<div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><div className="text-4xl">🗂️</div><div className="font-extrabold text-lg mt-2">Abhi koi deleted record nahi hai</div><div className="text-sm text-slate-500 mt-1">Aap jab Student, Fee, Expense, Salary ya Other Amount delete karein گے, woh yahan aa jayega aur aap usay one-by-one Restore kar sakenge.</div></div>
+    :<div className="mt-5 overflow-x-auto"><table className="w-full text-sm min-w-[800px]"><thead className="bg-slate-50"><tr className="text-left border-b"><th className="p-3">Type</th><th className="p-3">Record</th><th className="p-3">Deleted Date</th><th className="p-3 text-center">Action</th></tr></thead><tbody>{deletedRecords.slice().reverse().map(x=><tr key={x.id} className="border-b"><td className="p-3 font-semibold">{label(x.originalCollection)}</td><td className="p-3">{title(x)}</td><td className="p-3">{when(x)}</td><td className="p-3 text-center"><div className="flex gap-2 justify-center"><button onClick={()=>restoreDeletedRecord(x)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg font-bold">♻️ Restore</button><button onClick={()=>permanentlyDeleteTrash(x)} className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-bold">🗑️ Delete Backup</button></div></td></tr>)}</tbody></table></div>}
+  </div>
+ </div>
+}
+function AdminActivationPanel(){
+  const [customers,setCustomers]=useState([]),[search,setSearch]=useState(""),[loading,setLoading]=useState(true);
+  const load=async()=>{setLoading(true);try{const snap=await window.firebaseDb.collection("users").get();setCustomers(snap.docs.map(d=>({uid:d.id,...d.data()})))}catch(e){alert("Customer list load failed: "+e.message)}finally{setLoading(false)}};
+  useEffect(()=>{load()},[]);
+  const fmt=x=>{if(!x)return"—";try{return(x.toDate?x.toDate():new Date(x)).toLocaleString("en-PK")}catch(e){return"—"}};
+  const activate=async(c,type)=>{
+    if(c.licenseStatus==="Deleted"){alert("This customer account has been deleted and blocked. A deleted account cannot be activated again.");return;}
+    if(!confirm(type+" activate for "+(c.email||c.name||c.uid)+"?"))return;
+    const d={licenseStatus:"Active",licenseType:type,activatedBy:"p.zain0314@gmail.com",activatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    if(type==="Trial"){const n=new Date();d.trialStartedAt=firebase.firestore.Timestamp.fromDate(n);d.licenseExpiry=firebase.firestore.Timestamp.fromDate(new Date(n.getTime()+3*24*60*60*1000))}
+    else if(type==="Yearly")d.licenseExpiry= firebase.firestore.Timestamp.fromDate(new Date(Date.now()+365*24*60*60*1000));
+    else d.licenseExpiry=null;
+    try{await window.firebaseDb.collection("users").doc(c.uid).set(d,{merge:true});await load();alert(type+" activated successfully.")}catch(e){alert("Activation failed: "+e.message)}
+  };
+  const disable=async c=>{
+    if(!confirm("Disable software access for "+(c.email||c.name||c.uid)+"?"))return;
+    try{await window.firebaseDb.collection("users").doc(c.uid).set({licenseStatus:"Disabled",activatedBy:"p.zain0314@gmail.com",activatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});await load();alert("Customer disabled.")}catch(e){alert("Disable failed: "+e.message)}
+  };
+  const deleteCustomer=async c=>{
+    const email=c.email||c.name||c.uid;
+    if(c.licenseStatus==="Deleted"){alert("This customer account is already deleted and blocked.");return;}
+    if(!confirm("DELETE CUSTOMER ACCOUNT for "+email+"? This will permanently delete all school records and BLOCK this account from opening the software again. The Firebase Login/Authentication account itself cannot be deleted from a normal HTML page without Admin SDK/Cloud Functions."))return;
+    try{
+      const ref=window.firebaseDb.collection("users").doc(c.uid);
+      const subs=["students","fees","expenses","salaries","teachers","copies","otherAmounts","attendance","deletedRecords"];
+      for(const sub of subs){
+        const snap=await ref.collection(sub).get();
+        let batch=window.firebaseDb.batch(), n=0;
+        for(const d of snap.docs){batch.delete(d.ref);n++;if(n===400){await batch.commit();batch=window.firebaseDb.batch();n=0;}}
+        if(n)await batch.commit();
+      }
+      // Keep a small tombstone profile so the old email/password can never recreate a Trial account.
+      await ref.set({
+        name:c.name||"Customer", email:c.email||"", schoolName:c.schoolName||"SCHOOL NAME",
+        licenseStatus:"Deleted", licenseType:"Deleted", licenseExpiry:null,
+        accountDeleted:true, deletedBy:"p.zain0314@gmail.com",
+        deletedAt:firebase.firestore.FieldValue.serverTimestamp(),
+        activatedBy:"p.zain0314@gmail.com", activatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await load();
+      alert("Customer account data deleted and account permanently blocked from opening the software. The Firebase Authentication email/password credential remains because deleting another user's Auth account requires Admin SDK/Cloud Functions.");
+    }catch(e){console.error(e);alert("Customer account delete failed: "+(e.message||e))}
+  };
+  const q=search.toLowerCase();
+  const list=customers.filter(c=>(c.email||"").toLowerCase().includes(q)||(c.name||"").toLowerCase().includes(q)||(c.uid||"").toLowerCase().includes(q)||(c.schoolName||"").toLowerCase().includes(q));
+  return <div className="space-y-5">
+    <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white rounded-3xl p-6 shadow-card">
+      <div className="text-sm uppercase tracking-widest text-blue-200 font-semibold">Administrator Only</div>
+      <h2 className="text-3xl font-extrabold mt-1">🔐 Customer Activation</h2>
+      <p className="mt-2 text-blue-100">3-Day Trial • Yearly • Lifetime • Disable • Delete Account</p>
+      <p className="mt-2 text-sm text-blue-200">Admin: p.zain0314@gmail.com</p>
+    </div>
+    <div className="bg-white rounded-2xl p-5 shadow-card border">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between">
+        <input className="admin-search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search customer email, name or school..."/>
+        <button onClick={load} className="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold">↻ Refresh Customers</button>
+      </div>
+      <p className="text-sm text-slate-500 mt-3">{loading?"Loading...":customers.length+" customer account(s) found."}</p>
+    </div>
+    <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+      <div className="overflow-x-auto"><table className="admin-table min-w-[1050px]">
+        <thead><tr><th>Customer</th><th>Email / UID</th><th>School</th><th>License</th><th>Expiry</th><th>Actions</th></tr></thead>
+        <tbody>{!list.length?<tr><td colSpan="6" style={{textAlign:"center",padding:"35px"}}>No customers found.</td></tr>:
+        list.map(c=><tr key={c.uid}>
+          <td><b>{c.name||"Customer"}</b></td><td>{c.email||"—"}<br/><small>{c.uid}</small></td><td>{c.schoolName||"SCHOOL NAME"}</td>
+          <td><span className={`px-2 py-1 rounded-full text-xs font-bold ${c.licenseStatus==="Active"?"bg-green-100 text-green-700":c.licenseStatus==="Disabled"?"bg-red-100 text-red-700":"bg-slate-100 text-slate-700"}`}>{c.licenseStatus||"Not Activated"}</span><br/><small>{c.licenseType||"None"}</small></td>
+          <td>{c.licenseType==="Lifetime"?"Never":fmt(c.licenseExpiry)}</td>
+          <td><div className="admin-actions">
+            <button style={{background:"#2563eb"}} onClick={()=>activate(c,"Trial")}>3-Day Trial</button>
+            <button style={{background:"#16a34a"}} onClick={()=>activate(c,"Yearly")}>Yearly</button>
+            <button style={{background:"#7c3aed"}} onClick={()=>activate(c,"Lifetime")}>Lifetime</button>
+            <button style={{background:"#dc2626"}} onClick={()=>disable(c)}>Disable</button>
+            <button style={{background:"#111827"}} onClick={()=>deleteCustomer(c)}>🗑 Delete Account</button>
+          </div></td>
+        </tr>)}</tbody>
+      </table></div>
+    </div>
+  </div>
+}
+
+function ClassesPage({students,nav}){
+ const classes=["Play Group","Nursery","Prep","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"];
+ return <div>
+  <div className="flex flex-col sm:flex-row justify-between gap-3 mb-5">
+   <div><h2 className="text-xl font-bold">Classes</h2><p className="text-sm text-slate-500">Play Group to 10th Class</p></div>
+   <button onClick={()=>nav("students")} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-xl font-semibold">＋ Add Student</button>
+  </div>
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+   {classes.map((c,i)=>{let count=students.filter(s=>String(s.className||"")===c).length;return <div key={c} className="bg-white rounded-2xl shadow-card overflow-hidden border-t-4 border-blue-500 hover:-translate-y-1 transition">
+    <div className="p-5"><div className="text-3xl mb-2">🎓</div><h3 className="font-bold text-lg">{c}</h3><p className="text-sm text-slate-500 mt-1">Students</p><b className="text-2xl text-blue-600">{count}</b></div>
+   </div>})}
+  </div>
+  
+  <div className="mt-6 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white rounded-2xl p-6 shadow-card">
+   <h3 className="text-xl font-bold">Faisal Public High School Classes</h3>
+   <p className="mt-1 text-white/90">Complete class structure from Play Group to 10th.</p>
+   <div className="flex flex-wrap gap-2 mt-4">{classes.map(c=><span key={c} className="bg-white/20 px-3 py-1.5 rounded-full text-sm">{c}</span>)}</div>
+  </div>
+ </div>
+}
+function AttendancePage({students,teachers,attendance,save,del}){
+ const [date,setDate]=useState(today());
+ const [view,setView]=useState("students");
+ const [search,setSearch]=useState("");
+ const statuses=["Present","Absent","Leave","Late"];
+ const people=view==="students"?students.filter(x=>x.status!=="Inactive"):teachers.filter(x=>x.status!=="Inactive");
+ const filtered=people.filter(x=>`${x.name||""} ${x.fatherName||""} ${x.className||""} ${x.rollNo||""} ${x.subject||""}`.toLowerCase().includes(search.toLowerCase().trim()));
+ const keyFor=(kind,id)=>`${kind}_${id}_${date}`;
+ const getRec=(kind,id)=>attendance.find(a=>a.id===keyFor(kind,id));
+ const mark=async(person,status)=>{
+   const kind=view==="students"?"student":"teacher";
+   const id=keyFor(kind,person.id);
+   await save("attendance",{personId:person.id,personName:person.name||"",kind,date,status,className:person.className||"",rollNo:person.rollNo||"",subject:person.subject||""},id);
+ };
+ const stats=statuses.map(st=>[st,filtered.filter(p=>getRec(view==="students"?"student":"teacher",p.id)?.status===st).length]);
+ const month=date.slice(0,7);
+ const monthRows=attendance.filter(a=>a.kind===(view==="students"?"student":"teacher")&&String(a.date||"").startsWith(month));
+ const monthCounts=statuses.map(st=>[st,monthRows.filter(a=>a.status===st).length]);
+ return <div className="space-y-5">
+  <div className="bg-white rounded-2xl p-5 shadow-card border border-slate-200">
+   <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+    <div><h2 className="text-2xl font-extrabold">📝 Attendance</h2><p className="text-sm text-slate-500 mt-1">Added teachers and students automatically appear here. Mark daily attendance.</p></div>
+    <div className="flex flex-wrap gap-3 items-end"><label><span className="block text-xs font-bold mb-1">Attendance Date</span><input type="date" value={date} onChange={e=>setDate(e.target.value)} className="border rounded-xl px-3 py-2.5"/></label><button onClick={()=>setDate(today())} className="border px-4 py-2.5 rounded-xl font-bold">Today</button></div>
+   </div>
+  </div>
+  <div className="grid grid-cols-2 gap-4">
+   <button onClick={()=>{setView("students");setSearch("")}} className={`rounded-2xl p-5 text-left shadow-card border ${view==="students"?"bg-blue-600 text-white border-blue-600":"bg-white border-blue-200"}`}><div className="text-3xl">🎓</div><div className="text-xl font-extrabold mt-2">Student Attendance</div><div className={`text-sm mt-1 ${view==="students"?"text-blue-100":"text-slate-500"}`}>{students.filter(x=>x.status!=="Inactive").length} active students</div></button>
+   <button onClick={()=>{setView("teachers");setSearch("")}} className={`rounded-2xl p-5 text-left shadow-card border ${view==="teachers"?"bg-violet-600 text-white border-violet-600":"bg-white border-violet-200"}`}><div className="text-3xl">👨‍🏫</div><div className="text-xl font-extrabold mt-2">Teacher Attendance</div><div className={`text-sm mt-1 ${view==="teachers"?"text-violet-100":"text-slate-500"}`}>{teachers.filter(x=>x.status!=="Inactive").length} active teachers</div></button>
+  </div>
+  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+   {stats.map(([st,n])=><div key={st} className="bg-white rounded-xl p-4 border shadow-card"><div className="text-xs font-bold uppercase text-slate-500">{st}</div><div className="text-2xl font-extrabold mt-1">{n}</div><div className="text-xs text-slate-500 mt-1">Selected date</div></div>)}
+  </div>
+  <div className="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden">
+   <div className="p-5 border-b flex flex-col sm:flex-row gap-3 justify-between sm:items-center"><div><h3 className="font-extrabold text-lg">{view==="students"?"🎓 Student Attendance":"👨‍🏫 Teacher Attendance"} — {dateFmt(date)}</h3><p className="text-sm text-slate-500">{filtered.length} person(s) shown</p></div><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={view==="students"?"Search student, father, class, roll no...":"Search teacher, subject, phone..."} className="w-full sm:max-w-sm border rounded-xl p-2.5"/></div>
+   {!filtered.length?<div className="p-10 text-center text-slate-500">No active {view==="students"?"students":"teachers"} found.</div>:<div className="overflow-x-auto"><table className="w-full text-sm min-w-[900px]"><thead className="bg-slate-50"><tr><th className="p-3 text-left">#</th><th className="p-3 text-left">Name</th><th className="p-3 text-left">Class / Subject</th><th className="p-3 text-left">Roll / Phone</th><th className="p-3 text-center">Attendance</th></tr></thead><tbody>{filtered.map((p,i)=>{const rec=getRec(view==="students"?"student":"teacher",p.id);return <tr key={p.id} className="border-t"><td className="p-3">{i+1}</td><td className="p-3 font-bold">{p.name||"-"}</td><td className="p-3">{view==="students"?(p.className||"-"):(p.subject||"-")}</td><td className="p-3">{view==="students"?(p.rollNo||"-"):(p.phone||"-")}</td><td className="p-3"><div className="flex flex-wrap justify-center gap-2">{statuses.map(st=><button key={st} onClick={()=>mark(p,st)} className={`attendance-status-btn px-3 py-2 rounded-lg font-bold text-xs ${rec?.status===st?(st==="Present"?"bg-emerald-600":st==="Absent"?"bg-red-600":st==="Leave"?"bg-amber-500":"bg-blue-600"):"bg-slate-100 text-slate-700 hover:bg-slate-200"} ${rec?.status===st?"text-white":""}`}>{st}</button>)}</div></td></tr>})}</tbody></table></div>}
+  </div>
+  <div className="bg-white rounded-2xl p-5 shadow-card border border-slate-200"><div className="flex items-center justify-between gap-3 flex-wrap"><div><h3 className="font-extrabold text-lg">Monthly Summary — {monthFmt(month)}</h3><p className="text-sm text-slate-500">{view==="students"?"Students":"Teachers"} attendance records</p></div></div><div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">{monthCounts.map(([st,n])=><div key={st} className="rounded-xl bg-slate-50 p-4"><div className="text-xs font-bold text-slate-500">{st}</div><div className="text-2xl font-extrabold mt-1">{n}</div></div>)}</div></div>
+  <div className="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden"><div className="p-5 border-b"><h3 className="font-extrabold text-lg">Saved Attendance Records</h3><p className="text-sm text-slate-500">Delete is available for each saved attendance record.</p></div>{!monthRows.length?<div className="p-8 text-center text-slate-500">No attendance records saved for this month.</div>:<div className="overflow-x-auto"><table className="w-full text-sm min-w-[800px]"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Date</th><th className="p-3 text-left">Name</th><th className="p-3 text-left">Status</th><th className="p-3 text-left">Class / Subject</th><th className="p-3 text-center">Action</th></tr></thead><tbody>{monthRows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=><tr key={x.id} className="border-t"><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 font-semibold">{x.personName}</td><td className="p-3"><span className={`px-3 py-1 rounded-md text-xs font-bold ${x.status==="Present"?"bg-emerald-100 text-emerald-700":x.status==="Absent"?"bg-red-100 text-red-700":x.status==="Leave"?"bg-amber-100 text-amber-700":"bg-blue-100 text-blue-700"}`}>{x.status}</span></td><td className="p-3">{x.className||x.subject||"-"}</td><td className="p-3 text-center"><button onClick={()=>{if(confirm("Delete this attendance record?"))del(x.id)}} className="bg-red-50 text-red-600 p-2 rounded-lg">🗑️ Delete</button></td></tr>)}</tbody></table></div>}</div>
+ </div>
+}
+function StudentRecordsPage({schoolName,students,fees,otherAmounts,copies,attendance}){
+ const [studentId,setStudentId]=useState("");
+ const [search,setSearch]=useState("");
+ const student=students.find(s=>String(s.id)===String(studentId));
+ const q=search.trim().toLowerCase();
+ const studentOptions=students.filter(s=>!q||`${s.name||""} ${s.fatherName||""} ${s.className||""} ${s.rollNo||""}`.toLowerCase().includes(q));
+ const sf=student?fees.filter(x=>String(x.studentId)===String(student.id)):[];
+ const so=student?otherAmounts.filter(x=>String(x.studentId)===String(student.id)):[];
+ const sc=student?copies.filter(x=>String(x.studentId)===String(student.id)):[];
+ const sa=student?attendance.filter(x=>x.kind==="student"&&String(x.personId)===String(student.id)):[];
+ const feePaid=sf.filter(x=>x.paymentStatus==="Paid").reduce((a,x)=>a+(+x.amount||0),0);
+ const otherPaid=so.reduce((a,x)=>a+(x.paidAmount!==undefined&&x.paidAmount!==null&&x.paidAmount!==""?Number(x.paidAmount):(x.paymentStatus==="Paid"?Number(x.amount)||0:0)),0);
+ const otherRemaining=so.reduce((a,x)=>a+Math.max(0,(Number(x.amount)||0)-Number(x.paidAmount||0)),0);
+ const voucherHtml=()=>{
+  if(!student)return "";
+  const esc=v=>String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+  const rows=[];
+  sf.slice().sort((a,b)=>String(a.month||a.date).localeCompare(String(b.month||b.date))).forEach(x=>rows.push(`<tr><td>Fee</td><td>${esc(monthFmt(x.month||x.date?.slice(0,7)))}</td><td>${esc(dateFmt(x.date))}</td><td>${money(x.amount)}</td><td>${esc(x.paymentStatus||"")}</td></tr>`));
+  so.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(x=>rows.push(`<tr><td>Other Amount - ${esc(x.type||"Other Payment")}</td><td>-</td><td>${esc(dateFmt(x.date))}</td><td>${money(x.paidAmount!==undefined&&x.paidAmount!==""?x.paidAmount:x.amount)}</td><td>${esc(x.status||x.paymentStatus||"")}</td></tr>`));
+  sc.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(x=>rows.push(`<tr><td>Copy / Extra</td><td>${esc(monthFmt(x.month))}</td><td>${esc(dateFmt(x.date))}</td><td>${money((+x.copyAmount||0)+(+x.extraAmount||0))}</td><td>Recorded</td></tr>`));
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>Student Voucher - ${esc(student.name)}</title><style>body{font-family:Arial,sans-serif;margin:0;padding:28px;color:#111} .voucher{max-width:850px;margin:auto;border:2px solid #1e3a8a;padding:24px;border-radius:12px}.voucher-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}.voucher-brand .af-logo{width:44px;height:44px;flex:0 0 44px}.voucher-brand h1{text-align:left;margin:0;color:#1e3a8a;font-size:25px}.voucher-logo{width:44px;height:44px;flex:0 0 44px}h2{text-align:center;margin:5px 0 20px;font-size:16px}.info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}.box{border:1px solid #ddd;padding:8px;border-radius:6px}table{width:100%;border-collapse:collapse;margin-top:15px}th,td{border:1px solid #bbb;padding:8px;text-align:left}th{background:#eef4ff}.totals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.total{border:1px solid #ddd;padding:12px;font-weight:bold}.footer{margin-top:30px;display:flex;justify-content:space-between}.print{margin:18px auto;display:block;padding:10px 18px;background:#1e40af;color:#fff;border:0;border-radius:7px;font-weight:bold}@media print{.print{display:none}body{padding:0}.voucher{border:2px solid #000}}</style></head><body><button class="print" onclick="window.print()">Print Voucher</button><div class="voucher"><div class="voucher-brand"><svg class="af-logo af-round-logo" viewBox="0 0 100 100" aria-label="AL Faisal Education Management System logo"><circle cx="50" cy="50" r="47" fill="#071b33" stroke="#d4a017" stroke-width="3"/><circle cx="50" cy="50" r="43" fill="none" stroke="#f3d36b" stroke-width="1"/><path d="M25 42 Q31 34 37 40" fill="none" stroke="#d4a017" stroke-width="2"/><path d="M75 42 Q69 34 63 40" fill="none" stroke="#d4a017" stroke-width="2"/><path d="M24 43 C27 39 29 37 32 35 M22 48 C25 44 27 42 30 40 M23 53 C26 49 28 47 31 45" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round"/><path d="M76 43 C73 39 71 37 68 35 M78 48 C75 44 73 42 70 40 M77 53 C74 49 72 47 69 45" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round"/><path d="M50 20 L64 27 L50 34 L36 27 Z" fill="#d4a017"/><path d="M40 29 L40 34 Q50 39 60 34 L60 29" fill="#17365d" stroke="#d4a017" stroke-width="1"/><path d="M63 27 L63 37" stroke="#d4a017" stroke-width="1.5"/><circle cx="63" cy="38" r="1.3" fill="#d4a017"/><text x="50" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="900" fill="#f5c542">AL</text><path d="M29 55 Q39 49 50 57 Q61 49 71 55 L71 66 Q61 60 50 67 Q39 60 29 66Z" fill="#fff" stroke="#d4a017" stroke-width="1.5"/><path d="M50 57V67" stroke="#d4a017" stroke-width="1.3"/><text x="50" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="7.2" font-weight="900" fill="#f5c542">AL - FAISAL</text><text x="50" y="84" text-anchor="middle" font-family="Arial,sans-serif" font-size="4.0" font-weight="700" fill="#fff">EDUCATION MANAGEMENT</text><text x="50" y="90" text-anchor="middle" font-family="Arial,sans-serif" font-size="4.0" font-weight="700" fill="#fff">SYSTEM</text><circle cx="50" cy="95" r="1.5" fill="#d4a017"/></svg><h1>AL - FAISAL EDUCATION MANAGEMENT SYSTEM</h1></div><h2>${esc(schoolName)} — STUDENT RECORD VOUCHER</h2><div class="info"><div class="box"><b>Student Name:</b> ${esc(student.name)}</div><div class="box"><b>Father Name:</b> ${esc(student.fatherName||"-")}</div><div class="box"><b>Class:</b> ${esc(student.className||"-")}</div><div class="box"><b>Roll No:</b> ${esc(student.rollNo||"-")}</div></div><table><thead><tr><th>Record</th><th>Month</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows.join("")||'<tr><td colspan="5">No financial records found.</td></tr>'}</tbody></table><div class="totals"><div class="total">Total Fee Paid: ${money(feePaid)}</div><div class="total">Other Amount Paid: ${money(otherPaid)}</div><div class="total">Other Amount Remaining: ${money(otherRemaining)}</div><div class="total">Total Records: ${sf.length+so.length+sc.length+sa.length}</div></div><h3>Attendance Records</h3><table><thead><tr><th>Date</th><th>Status</th><th>Class</th></tr></thead><tbody>${sa.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<tr><td>${esc(dateFmt(x.date))}</td><td>${esc(x.status)}</td><td>${esc(x.className||"-")}</td></tr>`).join("")||'<tr><td colspan="3">No attendance records.</td></tr>'}</tbody></table><div class="footer"><span>Generated: ${esc(new Date().toLocaleString())}</span><span>Signature: __________________</span></div></div></body></html>`;
+  return html;
+ };
+ const openVoucher=()=>{const html=voucherHtml();if(!html)return;const w=window.open("","_blank");if(!w){alert("Please allow pop-ups for the voucher.");return}w.document.write(html);w.document.close();};
+ const downloadVoucher=()=>{const html=voucherHtml();if(!html)return;const blob=new Blob([html],{type:"text/html;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Student-Voucher-${(student.name||"Student").replace(/[^a-z0-9]+/gi,"-")}.html`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
+ return <div className="space-y-5">
+  <div className="bg-white rounded-2xl p-5 shadow-card border border-slate-200"><h2 className="text-2xl font-extrabold">📋 Student Records</h2><p className="text-sm text-slate-500 mt-1">Select a student to see all linked fee, Other Amount, copy/extra payment and attendance records in one place.</p><div className="grid sm:grid-cols-2 gap-3 mt-5"><label><span className="block text-xs font-bold mb-1">Search Student</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Name, Father Name, Class, Roll No..." className="w-full border rounded-xl p-3"/></label><label><span className="block text-xs font-bold mb-1">Select Student</span><select value={studentId} onChange={e=>setStudentId(e.target.value)} className="w-full border rounded-xl p-3"><option value="">Select Student</option>{studentOptions.map(s=><option key={s.id} value={s.id}>{s.name} — {s.className||"-"}{s.rollNo?` — Roll ${s.rollNo}`:""}</option>)}</select></label></div></div>
+  {!student?<div className="bg-white rounded-2xl p-10 text-center text-slate-500 border border-slate-200">Please select a student.</div>:<>
+   <div className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-2xl p-6 shadow-card"><div className="text-2xl font-extrabold">{student.name}</div><div className="mt-2 text-sm">Father: {student.fatherName||"-"} · Class: {student.className||"-"} · Roll: {student.rollNo||"-"}</div><div className="flex flex-wrap gap-3 mt-4"><button onClick={openVoucher} className="bg-white text-blue-700 px-5 py-2.5 rounded-xl font-extrabold">🧾 Generate Voucher</button><button onClick={downloadVoucher} className="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-extrabold">⬇️ Download Voucher</button></div></div>
+   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4"><Stat t="Fee Records" v={sf.length} i="fees"/><Stat t="Fee Paid" v={money(feePaid)} i="fees"/><Stat t="Other Amount Records" v={so.length} i="salary"/><Stat t="Attendance Records" v={sa.length} i="attendance"/></div>
+   <div className="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden"><div className="p-5 border-b"><h3 className="font-extrabold text-lg">💰 Fee Records</h3></div>{!sf.length?<div className="p-8 text-center text-slate-500">No fee records.</div>:<div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Month</th><th className="p-3 text-left">Date</th><th className="p-3 text-right">Amount</th><th className="p-3 text-left">Status</th></tr></thead><tbody>{sf.map(x=><tr key={x.id} className="border-t"><td className="p-3">{monthFmt(x.month||x.date?.slice(0,7))}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 text-right font-bold">{money(x.amount)}</td><td className="p-3">{x.paymentStatus||"-"}</td></tr>)}</tbody></table></div>}</div>
+   <div className="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden"><div className="p-5 border-b"><h3 className="font-extrabold text-lg">💳 Other Amount Records</h3></div>{!so.length?<div className="p-8 text-center text-slate-500">No Other Amount records.</div>:<div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Type</th><th className="p-3 text-left">Date</th><th className="p-3 text-right">Total</th><th className="p-3 text-right">Paid</th><th className="p-3 text-right">Remaining</th><th className="p-3">Status</th></tr></thead><tbody>{so.map(x=><tr key={x.id} className="border-t"><td className="p-3 font-semibold">{x.type||"Other Payment"}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 text-right">{money(x.amount)}</td><td className="p-3 text-right text-emerald-600 font-bold">{money(x.paidAmount!==undefined&&x.paidAmount!==""?x.paidAmount:(x.paymentStatus==="Paid"?x.amount:0))}</td><td className="p-3 text-right text-amber-600 font-bold">{money(Math.max(0,(Number(x.amount)||0)-Number(x.paidAmount||0)))}</td><td className="p-3 text-center">{x.status||x.paymentStatus||"-"}</td></tr>)}</tbody></table></div>}</div>
+   <div className="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden"><div className="p-5 border-b"><h3 className="font-extrabold text-lg">📝 Attendance Records</h3></div>{!sa.length?<div className="p-8 text-center text-slate-500">No attendance records.</div>:<div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3">Date</th><th className="p-3">Status</th><th className="p-3">Class</th></tr></thead><tbody>{sa.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=><tr key={x.id} className="border-t"><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 font-bold">{x.status}</td><td className="p-3">{x.className||"-"}</td></tr>)}</tbody></table></div>}</div>
+  </>}
+ </div>
+}
+
+function OtherAmountPage({students,otherAmounts,save,del}){
+ const [searchStudent,setSearchStudent]=useState("");
+ const [studentId,setStudentId]=useState("");
+ const [type,setType]=useState("Previous Balance");
+ const [amount,setAmount]=useState("");
+ const [paidAmount,setPaidAmount]=useState("");
+ const [date,setDate]=useState(today());
+ const [note,setNote]=useState("");
+ const [recordSearch,setRecordSearch]=useState("");
+ const [editId,setEditId]=useState("");
+ const selected=students.find(s=>String(s.id)===String(studentId));
+ const matches=students.filter(s=>s.status!=="Inactive"&&`${s.name||""} ${s.fatherName||""} ${s.className||""} ${s.rollNo||""}`.toLowerCase().includes(searchStudent.toLowerCase().trim())).slice(0,8);
+ const filtered=otherAmounts.filter(x=>`${x.studentName||""} ${x.className||""} ${x.type||""} ${x.rollNo||""}`.toLowerCase().includes(recordSearch.toLowerCase().trim()));
+ const total=otherAmounts.reduce((a,x)=>a+(Number(x.amount)||0),0);
+ const paidTotal=otherAmounts.reduce((a,x)=>a+((x.paidAmount!==undefined&&x.paidAmount!==null&&x.paidAmount!==""?Number(x.paidAmount):(x.paymentStatus==="Paid"?Number(x.amount)||0:0))),0);
+ const remainingTotal=Math.max(0,total-paidTotal);
+ const studentsCount=new Set(otherAmounts.map(x=>String(x.studentId)).filter(Boolean)).size;
+ const getPaid=x=>(x.paidAmount!==undefined&&x.paidAmount!==null&&x.paidAmount!==""?Number(x.paidAmount):(x.paymentStatus==="Paid"?Number(x.amount)||0:0));
+ const getRemaining=x=>Math.max(0,(Number(x.amount)||0)-getPaid(x));
+ const statusOf=x=>getRemaining(x)<=0&&Number(x.amount||0)>0?"Paid":getPaid(x)>0?"Partial":"Pending";
+ const markPaid=async x=>{if(statusOf(x)==="Paid")return;await save({...x,paidAmount:Number(x.amount)||0,remainingAmount:0,paymentStatus:"Paid"},x.id)};
+ const reset=()=>{setStudentId("");setSearchStudent("");setType("Previous Balance");setAmount("");setPaidAmount("");setDate(today());setNote("");setEditId("")};
+ const submit=async e=>{e.preventDefault();if(!studentId)return alert("Please search and select a student first.");const totalAmt=Number(amount)||0;const paid=Number(paidAmount)||0;if(totalAmt<=0)return alert("Please enter a valid total amount.");if(paid<0||paid>totalAmt)return alert("Paid amount cannot be greater than total amount.");const status=paid>=totalAmt?"Paid":paid>0?"Partial":"Pending";await save({studentId,studentName:selected?.name||"",className:selected?.className||"",rollNo:selected?.rollNo||"",type,amount:totalAmt,paidAmount:paid,remainingAmount:Math.max(0,totalAmt-paid),date,note,paymentStatus:status},editId||undefined);reset()};
+ return <div className="space-y-5">
+  <div className="flex flex-col sm:flex-row justify-between gap-3 items-start sm:items-center"><div><h2 className="text-2xl font-extrabold">Other Amount</h2><p className="text-sm text-slate-500 mt-1">Previous balance, copy payment, or any other student amount.</p></div><button onClick={()=>reset()} className="border px-4 py-2.5 rounded-xl font-bold">＋ New Entry</button></div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   <div className="bg-white rounded-2xl p-5 shadow-card border border-emerald-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Other Amount</p><h3 className="text-3xl font-extrabold mt-2 text-emerald-600">{money(total)}</h3><p className="text-xs mt-2 text-slate-500">Total amount due</p></div>
+   <div className="bg-white rounded-2xl p-5 shadow-card border border-blue-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Other Amount Paid</p><h3 className="text-3xl font-extrabold mt-2 text-blue-600">{money(paidTotal)}</h3><p className="text-xs mt-2 text-slate-500">Actual amount received</p></div>
+   <div className="bg-white rounded-2xl p-5 shadow-card border border-amber-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Other Amount Remaining</p><h3 className="text-3xl font-extrabold mt-2 text-amber-600">{money(remainingTotal)}</h3><p className="text-xs mt-2 text-slate-500">Still to be paid</p></div>
+   <div className="bg-white rounded-2xl p-5 shadow-card border border-purple-200"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Students With Other Amount</p><h3 className="text-3xl font-extrabold mt-2 text-purple-600">{studentsCount}</h3><p className="text-xs mt-2 text-slate-500">Unique students</p></div>
+  </div>
+  <div className="bg-white rounded-2xl p-5 shadow-card border border-slate-200">
+   <h3 className="text-lg font-extrabold text-slate-800">＋ Add Other Amount</h3>
+   <p className="text-sm text-slate-500 mt-1">Example: Total Amount 400, Paid Amount 200 → Remaining 200.</p>
+   <form onSubmit={submit} className="mt-4 space-y-4">
+    <div className="grid lg:grid-cols-2 gap-4">
+     <div className="relative"><label className="block text-sm font-semibold mb-1">Search Student</label><input value={searchStudent} onChange={e=>{setSearchStudent(e.target.value);setStudentId("")}} placeholder="Type student name, father name, class or roll no..." className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"/>{searchStudent&&!studentId&&matches.length>0&&<div className="absolute z-20 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">{matches.map(st=><button type="button" key={st.id} onClick={()=>{setStudentId(String(st.id));setSearchStudent(st.name||"")}} className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-b-0"><b>{st.name}</b><span className="text-sm text-slate-500"> — {st.className||"-"} {st.rollNo?"· Roll "+st.rollNo:""}</span></button>)}</div>}{searchStudent&&!studentId&&!matches.length&&<div className="mt-1 text-sm text-red-500">No student found.</div>}</div>
+     <In label="Class (Automatic)" value={selected?.className||""} readOnly placeholder="Select a student from search"/>
+     <Sel label="Other Amount Type" value={type} onChange={e=>setType(e.target.value)}><option>Previous Balance</option><option>Copy Payment</option><option>Other Payment</option><option>Fine</option><option>Admission / Miscellaneous</option></Sel>
+     <In label="Total Amount" required type="number" min="0" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="e.g. 400"/>
+     <In label="Paid Amount" required type="number" min="0" value={paidAmount} onChange={e=>setPaidAmount(e.target.value)} placeholder="e.g. 200"/>
+     <In label="Remaining Amount" value={money(Math.max(0,(Number(amount)||0)-(Number(paidAmount)||0)))} readOnly/>
+     <In label="Date" required type="date" value={date} onChange={e=>setDate(e.target.value)}/>
+     <Area label="Note / Purpose" rows="2" value={note} onChange={e=>setNote(e.target.value)} placeholder="e.g. Previous balance, copy payment, etc."/>
+    </div>
+    {selected&&<div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-sm"><b>{selected.name}</b> — Class: <b>{selected.className||"-"}</b>{selected.rollNo?<> — Roll: <b>{selected.rollNo}</b></>:null}</div>}
+    <div className="flex justify-end gap-2"><button type="button" onClick={reset} className="border px-5 py-2.5 rounded-lg">Clear</button><button className="bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-bold">{editId?"Update Other Amount":"Save Other Amount"}</button></div>
+   </form>
+  </div>
+  <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-slate-200">
+   <div className="p-5 border-b flex flex-col sm:flex-row gap-3 justify-between sm:items-center"><div><h3 className="font-extrabold text-lg">Other Amount Records</h3><p className="text-sm text-slate-500">{filtered.length} record(s)</p></div><input value={recordSearch} onChange={e=>setRecordSearch(e.target.value)} placeholder="Search saved records..." className="w-full sm:max-w-sm border rounded-xl p-2.5"/></div>
+   {!filtered.length?<div className="p-10 text-center text-slate-500">No Other Amount records found.</div>:<div className="overflow-x-auto"><table className="w-full text-sm min-w-[1100px]"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Student</th><th className="p-3 text-left">Class</th><th className="p-3 text-left">Type</th><th className="p-3 text-right">Total</th><th className="p-3 text-right">Paid</th><th className="p-3 text-right">Remaining</th><th className="p-3 text-left">Date</th><th className="p-3 text-left">Note</th><th className="p-3 text-center">Status</th><th className="p-3 text-center">Actions</th></tr></thead><tbody>{filtered.map(x=>{const st=statusOf(x);return <tr className="border-t hover:bg-slate-50" key={x.id}><td className="p-3 font-semibold">{x.studentName||"-"}</td><td className="p-3">{x.className||"-"}</td><td className="p-3"><span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold">{x.type||"Other Payment"}</span></td><td className="p-3 text-right font-bold text-slate-700">{money(x.amount)}</td><td className="p-3 text-right font-bold text-emerald-600">{money(getPaid(x))}</td><td className="p-3 text-right font-bold text-amber-600">{money(getRemaining(x))}</td><td className="p-3">{dateFmt(x.date)}</td><td className="p-3 max-w-[220px]">{x.note||x.notes||"-"}</td><td className="p-3 text-center"><span className={`px-3 py-1 rounded-md text-xs font-bold ${st==="Paid"?"bg-emerald-100 text-emerald-700":st==="Partial"?"bg-blue-100 text-blue-700":"bg-amber-100 text-amber-700"}`}>{st}</span></td><td className="p-3"><div className="flex justify-center gap-2"><button disabled={st==="Paid"} onClick={()=>markPaid(x)} className={`px-3 py-2 rounded-lg font-bold text-white text-xs ${st==="Paid"?"bg-slate-400":"bg-emerald-600 hover:bg-emerald-700"}`}>{st==="Paid"?"✓ Paid":"Mark Paid"}</button><button onClick={()=>{setEditId(x.id);setStudentId(String(x.studentId||""));setSearchStudent(x.studentName||"");setType(x.type||"Previous Balance");setAmount(x.amount||"");setPaidAmount(getPaid(x));setDate(x.date||today());setNote(x.note||x.notes||"");window.scrollTo({top:0,behavior:"smooth"})}} className="bg-blue-50 text-blue-600 p-2 rounded-lg">✏️</button><button onClick={()=>{if(confirm("Delete this Other Amount record?"))del(x.id)}} className="bg-red-50 text-red-600 p-2 rounded-lg">🗑️</button></div></td></tr>})}</tbody></table></div>}
+  </div>
+ </div>
+}
+function Copies({students,copies,setCopies,del}){const [studentId,setStudentId]=useState("");const [copyAmount,setCopyAmount]=useState("");const [extraAmount,setExtraAmount]=useState("");const [month,setMonth]=useState(today().slice(0,7));const st=students.find(x=>String(x.id)===String(studentId));const add=()=>{if(!studentId)return alert("Please select a student");setCopies(a=>[...a,{id:uid(),studentId,studentName:st?.name||"",className:st?.className||"",copyAmount:+copyAmount||0,extraAmount:+extraAmount||0,month,date:today()}]);setCopyAmount("");setExtraAmount("")};return <div className="space-y-5"><div className="bg-white rounded-2xl p-5 shadow-card"><h2 className="text-xl font-bold mb-4">Copies & Extra Payment</h2><div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3"><Sel label="Select Student" value={studentId} onChange={e=>setStudentId(e.target.value)}><option value="">Select Student</option>{students.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Sel><In label="Class (Automatic)" value={st?.className||""} readOnly/><In label="Copy Amount" type="number" value={copyAmount} onChange={e=>setCopyAmount(e.target.value)}/><In label="Extra Payment" type="number" value={extraAmount} onChange={e=>setExtraAmount(e.target.value)}/><In label="Month" type="month" value={month} onChange={e=>setMonth(e.target.value)}/></div><button onClick={add} className="mt-4 bg-blue-600 text-white px-5 py-3 rounded-xl font-bold">Add Record</button></div><Records title="Copy Records" desc="Student copies and extra payments." add="Add Record" search="" setSearch={()=>{}} rows={copies} cols={["Student","Class","Month","Copy","Extra Payment"]} render={x=><><td className="p-3 font-semibold">{x.studentName}</td><td className="p-3">{x.className}</td><td className="p-3">{monthFmt(x.month)}</td><td className="p-3">{money(x.copyAmount)}</td><td className="p-3">{money(x.extraAmount)}</td></>} onAdd={()=>{}} onEdit={()=>{}} onDelete={x=>del("copy",x.id)}/></div>}
+
+function Dashboard(p){
+ const [selectedMonth,setSelectedMonth]=useState(p.month);
+ const [selectedDate,setSelectedDate]=useState(today());
+ const selectedExpected=p.students.filter(x=>x.status!=="Inactive"&&String(x.feeType||"").toLowerCase()!=="free"&&x.isFree!==true).reduce((a,x)=>a+(+x.monthlyFee||0),0);
+ const selectedPaid=p.fees.filter(x=>(x.month||x.date?.slice(0,7))===selectedMonth&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0);
+ const selectedRemaining=Math.max(0,selectedExpected-selectedPaid);
+ const selectedOther=p.otherAmounts.filter(x=>(x.month||x.date?.slice(0,7))===selectedMonth).reduce((a,x)=>a+((x.paidAmount!==undefined&&x.paidAmount!==null&&x.paidAmount!==""?Number(x.paidAmount):(x.paymentStatus==="Paid"?Number(x.amount)||0:0))),0);
+ const selectedToday=p.fees.filter(x=>x.date===selectedDate&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0)+p.otherAmounts.filter(x=>x.date===selectedDate&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0);
+ const totalCollection=selectedPaid+selectedOther;
+ const selectedDefaulters=p.students.filter(s=>s.status!=="Inactive"&&String(s.feeType||"").toLowerCase()!=="free"&&s.isFree!==true&&!p.fees.some(f=>String(f.studentId)===String(s.id)&&(f.month||f.date?.slice(0,7))===selectedMonth&&f.paymentStatus==="Paid"));
+ let charts=[];for(let i=5;i>=0;i--){let d=new Date();d.setMonth(d.getMonth()-i);let k=d.toISOString().slice(0,7);charts.push({k,l:d.toLocaleDateString("en-US",{month:"short"}),v:p.fees.filter(x=>(x.month||x.date?.slice(0,7))===k&&x.paymentStatus==="Paid").reduce((a,x)=>a+ +x.amount,0)})}
+ let max=Math.max(...charts.map(x=>x.v),1),normal=p.expenses.filter(x=>x.month===selectedMonth&&!x.autoSalaryId).reduce((a,x)=>a+ +x.amount,0),selectedSalary=p.salaries.filter(x=>x.month===selectedMonth).reduce((a,x)=>a+ +x.amount,0),total=normal+selectedSalary,sp=total?Math.round(selectedSalary/total*100):0;
+ return <div className="space-y-5">
+   <div className="relative overflow-hidden rounded-3xl p-7 text-white shadow-card bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500">
+    <div className="absolute -right-10 -top-16 w-48 h-48 rounded-full bg-white/10"></div>
+    <div className="absolute right-20 -bottom-20 w-40 h-40 rounded-full bg-purple-300/20"></div>
+    <div className="relative"><div className="af-brand"><svg className="af-logo af-round-logo" viewBox="0 0 100 100" aria-label="AL Faisal Education Management System logo"><circle cx="50" cy="50" r="47" fill="#071b33" stroke="#d4a017" strokeWidth="3"/><circle cx="50" cy="50" r="43" fill="none" stroke="#f3d36b" strokeWidth="1"/><path d="M25 42 Q31 34 37 40" fill="none" stroke="#d4a017" strokeWidth="2"/><path d="M75 42 Q69 34 63 40" fill="none" stroke="#d4a017" strokeWidth="2"/><path d="M24 43 C27 39 29 37 32 35 M22 48 C25 44 27 42 30 40 M23 53 C26 49 28 47 31 45" fill="none" stroke="#d4a017" strokeWidth="2" strokeLinecap="round"/><path d="M76 43 C73 39 71 37 68 35 M78 48 C75 44 73 42 70 40 M77 53 C74 49 72 47 69 45" fill="none" stroke="#d4a017" strokeWidth="2" strokeLinecap="round"/><path d="M50 20 L64 27 L50 34 L36 27 Z" fill="#d4a017"/><path d="M40 29 L40 34 Q50 39 60 34 L60 29" fill="#17365d" stroke="#d4a017" strokeWidth="1"/><path d="M63 27 L63 37" stroke="#d4a017" strokeWidth="1.5"/><circle cx="63" cy="38" r="1.3" fill="#d4a017"/><text x="50" y="50" textAnchor="middle" fontFamily="Georgia,serif" fontSize="22" fontWeight="900" fill="#f5c542">AL</text><path d="M29 55 Q39 49 50 57 Q61 49 71 55 L71 66 Q61 60 50 67 Q39 60 29 66Z" fill="#fff" stroke="#d4a017" strokeWidth="1.5"/><path d="M50 57V67" stroke="#d4a017" strokeWidth="1.3"/><text x="50" y="76" textAnchor="middle" fontFamily="Georgia,serif" fontSize="7.2" fontWeight="900" fill="#f5c542">AL - FAISAL</text><text x="50" y="84" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="4.0" fontWeight="700" fill="#fff">EDUCATION MANAGEMENT</text><text x="50" y="90" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="4.0" fontWeight="700" fill="#fff">SYSTEM</text><circle cx="50" cy="95" r="1.5" fill="#d4a017"/></svg><div className="text-sm font-semibold uppercase tracking-widest text-cyan-100 af-brand-title-text">AL - FAISAL EDUCATION MANAGEMENT SYSTEM</div></div>
+    <h2 className="text-3xl sm:text-4xl font-extrabold mt-2">{p.schoolName}</h2>
+    <p className="text-blue-50 mt-2 max-w-2xl">Students, fee collection, expenses, teacher service and salary management — all in one place.</p>
+    <div className="flex flex-wrap gap-3 mt-5"><span className="bg-white/15 px-4 py-2 rounded-full text-sm">💾 Auto Save</span><span className="bg-white/15 px-4 py-2 rounded-full text-sm">📱 Mobile Friendly</span><span className="bg-white/15 px-4 py-2 rounded-full text-sm">🔒 Private Cloud Account</span></div></div>
+   </div>
+
+   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8 gap-4">
+    <Stat t="Total Students" v={p.activeStudents} i="students"/>
+    <Stat t="Total Teachers" v={p.teachers.length} i="teacher"/>
+    <Stat t={`Total Collection (${monthFmt(selectedMonth)})`} v={money(totalCollection)} i="fees"/>
+    <Stat t={`Other Amount (${monthFmt(selectedMonth)})`} v={money(selectedOther)} i="salary"/>
+    <Stat t={`Expected Fee (${monthFmt(selectedMonth)})`} v={money(selectedExpected)} i="fees"/>
+    <Stat t={`Paid Fee (${monthFmt(selectedMonth)})`} v={money(selectedPaid)} i="fees"/>
+    <Stat t={`Remaining Fee (${monthFmt(selectedMonth)})`} v={money(selectedRemaining)} i="salary"/>
+    <Stat t={`Teacher Salaries (${monthFmt(selectedMonth)})`} v={money(selectedSalary)} i="salary"/>
+    <Stat t="Net Profit (Current Month)" v={money(p.net)} i="chart"/>
+   </div>
+
+   <div className="grid xl:grid-cols-2 gap-5">
+    <div className="bg-white rounded-2xl p-5 shadow-card border border-blue-100"><h3 className="font-bold text-lg text-blue-700">📊 Monthly Fee Collection</h3><p className="text-sm text-slate-500 mb-5">Last 6 months</p><div className="h-56 flex items-end gap-3">{charts.map(x=><div key={x.k} className="flex-1 h-full flex flex-col justify-end items-center"><span className="text-xs text-slate-500">{x.v?Math.round(x.v/1000)+"k":"0"}</span><div className="w-full max-w-12 bg-gradient-to-t from-indigo-600 via-blue-500 to-cyan-400 rounded-t" style={{height:Math.max(4,x.v/max*190)}}></div><span className="text-xs mt-2">{x.l}</span></div>)}</div></div>
+    <div className="bg-white rounded-2xl p-5 shadow-card border border-purple-100"><h3 className="font-bold text-lg text-purple-700">🥧 Expense Distribution</h3><p className="text-sm text-slate-500 mb-5">{monthFmt(selectedMonth)}</p><div className="flex flex-col sm:flex-row items-center gap-8"><div className="w-44 h-44 rounded-full" style={{background:`conic-gradient(#f97316 0 ${sp}%,#6366f1 ${sp}% 100%)`}}></div><div className="space-y-4 w-full"><p>🟠 Teacher Salaries: <b>{money(selectedSalary)}</b> ({sp}%)</p><p>🔵 Other Expenses: <b>{money(normal)}</b> ({100-sp}%)</p><hr/><p className="font-bold">Total Expenses: {money(total)}</p></div></div></div>
+   </div>
+
+   <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-rose-100"><div className="p-5 border-b bg-gradient-to-r from-rose-50 to-orange-50"><h3 className="font-bold text-lg text-rose-700">⚠️ Fee Defaulters</h3><p className="text-sm text-slate-500">Students without a payment for {monthFmt(selectedMonth)}</p></div>{selectedDefaulters.length?<div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50"><tr><th className="p-3 text-left">Student</th><th className="p-3 text-left">Class</th><th className="p-3 text-right">Monthly Fee</th></tr></thead><tbody>{selectedDefaulters.slice(0,15).map(x=><tr className="border-t" key={x.id}><td className="p-3 font-semibold">{x.name}</td><td className="p-3">{x.className||"-"}</td><td className="p-3 text-right text-red-600">{money(x.monthlyFee)}</td></tr>)}</tbody></table></div>:<div className="p-8 text-center">🎉 No fee defaulters!</div>}</div>
+  </div>
+}
+function Stat({t,v,i}){const styles={students:"from-blue-500 to-cyan-500",teacher:"from-violet-500 to-purple-600",fees:"from-emerald-500 to-teal-500",salary:"from-orange-500 to-amber-500",chart:"from-pink-500 to-rose-500"};return <div className="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition"><div className={"h-1.5 bg-gradient-to-r "+(styles[i]||"from-blue-500 to-indigo-500")}></div><div className="p-4 flex justify-between items-center"><div><p className="text-xs text-slate-500 font-semibold">{t}</p><b className="text-xl block mt-2 text-slate-800">{v}</b></div><span className={"w-11 h-11 rounded-xl bg-gradient-to-br "+(styles[i]||"from-blue-500 to-indigo-500")+" text-white flex items-center justify-center text-xl"}><Icon n={i}/></span></div></div>}
+
+function Records({title,desc,add,search,setSearch,rows,cols,render,onAdd,onEdit,onDelete}){
+ return <div><div className="flex flex-col sm:flex-row justify-between gap-3 mb-5"><div><h2 className="text-xl font-bold">{title}</h2><p className="text-sm text-slate-500">{desc}</p></div><button onClick={onAdd} className="bg-blue-600 text-white px-4 py-3 rounded-xl font-semibold">＋ {add}</button></div><div className="bg-white rounded-2xl shadow-card overflow-hidden"><div className="p-4 border-b"><div className="relative"><span className="absolute left-3 top-2.5"><Icon n="search"/></span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="w-full border rounded-xl p-2.5 pl-10 outline-none focus:ring-2 focus:ring-blue-500"/></div></div>{!rows.length?<div className="p-12 text-center text-slate-500">No records found.</div>:<div className="overflow-x-auto"><table className="w-full text-sm min-w-[800px]"><thead className="bg-slate-50"><tr>{cols.map(c=><th className="p-3 text-left" key={c}>{c}</th>)}<th className="p-3 text-center">Actions</th></tr></thead><tbody>{rows.map(x=><tr className="border-t hover:bg-slate-50" key={x.id}>{render(x)}<td className="p-3"><div className="flex justify-center gap-2"><button onClick={()=>onEdit(x)} className="bg-blue-50 text-blue-600 p-2 rounded-lg">✏️</button><button onClick={()=>onDelete(x)} className="bg-red-50 text-red-600 p-2 rounded-lg">🗑️</button></div></td></tr>)}</tbody></table></div>}</div></div>
+}
+function Modal({title,children,close}){return <div className="fixed inset-0 z-[100] modal-bg flex items-center justify-center p-3"><div className="bg-white rounded-2xl w-full max-w-2xl max-h-[94vh] overflow-y-auto"><div className="sticky top-0 bg-white border-b p-4 flex justify-between"><h2 className="font-bold text-lg">{title}</h2><button onClick={close}><Icon n="close"/></button></div><div className="p-5">{children}</div></div></div>}
+const In=({label,...p})=><label className="block"><span className="block text-sm font-semibold mb-1">{label}</span><input {...p} className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"/></label>;
+const Sel=({label,children,...p})=><label className="block"><span className="block text-sm font-semibold mb-1">{label}</span><select {...p} className="w-full border rounded-lg p-2.5 bg-white outline-none focus:ring-2 focus:ring-blue-500">{children}</select></label>;
+const Area=({label,...p})=><label className="block"><span className="block text-sm font-semibold mb-1">{label}</span><textarea {...p} className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"/></label>;
+function Custom({fields,setFields}){function add(){setFields([...fields,{id:uid(),name:"",value:""}])}return <div className="mt-5 pt-5 border-t"><div className="flex justify-between mb-3"><b>Custom Fields</b><button type="button" onClick={add} className="text-blue-600 font-semibold">+ Add Custom Field</button></div>{fields.map(f=><div className="grid sm:grid-cols-[1fr_1fr_auto] gap-2 mb-2" key={f.id}><input value={f.name} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,name:e.target.value}:x))} placeholder="Field name" className="border rounded-lg p-2"/><input value={f.value} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,value:e.target.value}:x))} placeholder="Value" className="border rounded-lg p-2"/><button type="button" onClick={()=>setFields(fields.filter(x=>x.id!==f.id))} className="bg-red-50 text-red-600 rounded-lg px-3">🗑️</button></div>)}</div>}
+function Buttons({close,text}){return <div className="flex justify-end gap-2 mt-6 pt-4 border-t"><button type="button" onClick={close} className="border px-5 py-2.5 rounded-lg">Cancel</button><button className="bg-blue-600 text-white px-5 py-2.5 rounded-lg">{text}</button></div>}
+function StudentModal({initial,close,save}){let[f,setF]=useState({name:initial?.name||"",fatherName:initial?.fatherName||"",className:initial?.className||"",rollNo:initial?.rollNo||"",monthlyFee:initial?.monthlyFee||"",feeType:initial?.feeType||((initial?.isFree===true)?"Free":"Fee Paying"),isFree:initial?.isFree===true||String(initial?.feeType||"").toLowerCase()==="free",admissionDate:initial?.admissionDate||today(),phone:initial?.phone||"",address:initial?.address||"",status:initial?.status||"Active",notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);let feeMode=v=>setF({...f,feeType:v,isFree:v==="Free",monthlyFee:v==="Free"?0:f.monthlyFee});return <Modal title={initial?"Edit Student":"Add Student"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,monthlyFee:f.feeType==="Free"?0:+f.monthlyFee,isFree:f.feeType==="Free",customFields:cf})}}><div className="grid sm:grid-cols-2 gap-4"><In label="Student Name" required value={f.name} onChange={e=>setF({...f,name:e.target.value})}/><In label="Father Name" value={f.fatherName} onChange={e=>setF({...f,fatherName:e.target.value})}/><Sel label="Class" value={f.className} onChange={e=>setF({...f,className:e.target.value})}>
+<option value="">Select Class</option><option>Play Group</option><option>Nursery</option><option>Prep</option><option>1st</option><option>2nd</option><option>3rd</option><option>4th</option><option>5th</option><option>6th</option><option>7th</option><option>8th</option><option>9th</option><option>10th</option>
+</Sel><In label="Roll Number" value={f.rollNo} onChange={e=>setF({...f,rollNo:e.target.value})}/><Sel label="Fee Type" value={f.feeType} onChange={e=>feeMode(e.target.value)}><option>Fee Paying</option><option>Free</option></Sel><In label="Monthly Fee" type="number" value={f.monthlyFee} disabled={f.feeType==="Free"} onChange={e=>setF({...f,monthlyFee:e.target.value})}/><In label="Admission Date" type="date" value={f.admissionDate} onChange={e=>setF({...f,admissionDate:e.target.value})}/><In label="Phone" value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/><Sel label="Status" value={f.status} onChange={e=>setF({...f,status:e.target.value})}><option>Active</option><option>Inactive</option></Sel></div><div className="mt-4"><Area label="Address" rows="2" value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></div><div className="mt-4"><Area label="Notes" rows="2" value={f.notes} onChange={e=>setF({...f,notes:e.target.value})}/></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Student":"Add Student"}/></form></Modal>}
+function TeacherModal({initial,close,save}){let[f,setF]=useState({name:initial?.name||"",fatherName:initial?.fatherName||"",cnic:initial?.cnic||"",phone:initial?.phone||"",subject:initial?.subject||"",qualification:initial?.qualification||"",joiningDate:initial?.joiningDate||today(),status:initial?.status||"Active",monthlySalary:initial?.monthlySalary||"",address:initial?.address||"",notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);let ch=(k,v)=>setF({...f,[k]:v});return <Modal title={initial?"Edit Teacher Service":"Add Teacher Service"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,monthlySalary:+f.monthlySalary,customFields:cf})}}><div className="grid sm:grid-cols-2 gap-4"><In label="Teacher Name" required value={f.name} onChange={e=>ch("name",e.target.value)}/><In label="Father Name" value={f.fatherName} onChange={e=>ch("fatherName",e.target.value)}/><In label="CNIC / ID" value={f.cnic} onChange={e=>ch("cnic",e.target.value)}/><In label="Phone Number" value={f.phone} onChange={e=>ch("phone",e.target.value)}/><In label="Subject" value={f.subject} onChange={e=>ch("subject",e.target.value)}/><In label="Qualification" value={f.qualification} onChange={e=>ch("qualification",e.target.value)}/><In label="Joining Date" type="date" value={f.joiningDate} onChange={e=>ch("joiningDate",e.target.value)}/><Sel label="Service Status" value={f.status} onChange={e=>ch("status",e.target.value)}><option>Active</option><option>Inactive</option></Sel><In label="Monthly Salary" type="number" value={f.monthlySalary} onChange={e=>ch("monthlySalary",e.target.value)}/></div><div className="mt-4"><Area label="Address" rows="2" value={f.address} onChange={e=>ch("address",e.target.value)}/></div><div className="mt-4"><Area label="Notes" rows="2" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Teacher":"Add Teacher"}/></form></Modal>}
+function FeeModal({initial,students,selectedMonth,close,save}){
+ let[f,setF]=useState({
+  studentId:initial?.studentId||"",
+  studentName:initial?.studentName||"",
+  className:initial?.className||"",
+  amount:initial?.amount||"",
+  month:initial?.month||selectedMonth||thisMonth(),
+  date:initial?.date||today(),
+  paymentStatus:initial?.paymentStatus||"Paid",
+  notes:initial?.notes||""
+ }),[cf,setCf]=useState(initial?.customFields||[]);
+ let ch=(k,v)=>setF({...f,[k]:v});
+ function studentChange(v){
+  let st=students.find(x=>String(x.id)===String(v));
+  setF({...f,studentId:v,studentName:st?.name||"",className:st?.className||"",amount:st?.monthlyFee||""});
+ }
+ return <Modal title={initial?"Edit Fee":"Add Fee"} close={close}>
+  <form onSubmit={e=>{e.preventDefault();if(!f.studentId){alert("Please select a student.");return}save({...f,amount:+f.amount,customFields:cf})}}>
+   <div className="grid sm:grid-cols-2 gap-4">
+    <Sel label="Student Name" required value={f.studentId} onChange={e=>studentChange(e.target.value)}>
+     <option value="">Select Student</option>
+     {students.filter(s=>s.status!=="Inactive").map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+    </Sel>
+    <In label="Class" value={f.className} readOnly placeholder="Auto from Student"/>
+    <In label="Monthly Fee" required type="number" value={f.amount} readOnly placeholder="Auto from Student"/>
+    <In label="Fee Month" required type="month" value={f.month} onChange={e=>ch("month",e.target.value)}/>
+    <In label="Payment Date" type="date" value={f.date} onChange={e=>ch("date",e.target.value)}/>
+   </div>
+   <div className="mt-5">
+    <span className="block text-sm font-semibold mb-2">Fee Status</span>
+    <div className="grid grid-cols-2 gap-3">
+     <button type="button" onClick={()=>ch("paymentStatus","Paid")} className={`p-3 rounded-xl border-2 font-bold ${f.paymentStatus==="Paid"?"border-green-500 bg-green-50 text-green-700":"border-slate-200 text-slate-500"}`}>✓ Paid</button>
+     <button type="button" onClick={()=>ch("paymentStatus","Unpaid")} className={`p-3 rounded-xl border-2 font-bold ${f.paymentStatus==="Unpaid"?"border-red-500 bg-red-50 text-red-700":"border-slate-200 text-slate-500"}`}>✕ Unpaid</button>
+    </div>
+   </div>
+   <div className="mt-4"><Area label="Notes" rows="3" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div>
+   <Custom fields={cf} setFields={setCf}/>
+   <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+    <button type="button" onClick={close} className="border px-5 py-2.5 rounded-lg">Cancel</button>
+    <button type="button" onClick={()=>{if(!f.studentId){alert("Please select a student.");return}save({...f,amount:+f.amount,paymentStatus:"Paid",date:f.date||today(),customFields:cf})}} className="bg-green-600 text-white px-5 py-2.5 rounded-lg font-semibold">✓ Mark as Paid & Save</button>
+    <button type="submit" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg">{initial?"Update Fee":"Save Fee"}</button>
+   </div>
+  </form>
+ </Modal>
+}
+function ExpenseModal({initial,close,save}){let[f,setF]=useState({name:initial?.name||"",amount:initial?.amount||"",month:initial?.month||thisMonth(),date:initial?.date||today(),notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);let ch=(k,v)=>setF({...f,[k]:v});return <Modal title={initial?"Edit Expense":"Add Expense"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,amount:+f.amount,customFields:cf})}}><div className="space-y-4"><In label="Expense Name" required value={f.name} onChange={e=>ch("name",e.target.value)}/><div className="grid sm:grid-cols-2 gap-4"><In label="Amount" required type="number" value={f.amount} onChange={e=>ch("amount",e.target.value)}/><In label="Date" type="date" value={f.date} onChange={e=>ch("date",e.target.value)}/><In label="Month" type="month" value={f.month} onChange={e=>ch("month",e.target.value)}/></div><Area label="Notes" rows="3" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Expense":"Add Expense"}/></form></Modal>}
+function SalaryModal({initial,teachers,close,save}){let[f,setF]=useState({teacherId:initial?.teacherId||"",teacherName:initial?.teacherName||"",month:initial?.month||thisMonth(),amount:initial?.amount||"",paymentDate:initial?.paymentDate||today(),notes:initial?.notes||""}),[cf,setCf]=useState(initial?.customFields||[]);let ch=(k,v)=>setF({...f,[k]:v});function teacherChange(v){let t=teachers.find(x=>String(x.id)===String(v));setF({...f,teacherId:v,teacherName:t?.name||"",amount:t?.monthlySalary||f.amount})}return <Modal title={initial?"Edit Teacher Salary":"Add Teacher Salary"} close={close}><form onSubmit={e=>{e.preventDefault();save({...f,customFields:cf})}}><div className="grid sm:grid-cols-2 gap-4"><Sel label="Teacher Name" required value={f.teacherId} onChange={e=>teacherChange(e.target.value)}><option value="">Select Teacher</option>{teachers.map(t=><option key={t.id} value={t.id}>{t.name}{t.subject?" — "+t.subject:""}</option>)}</Sel><In label="Month" required type="month" value={f.month} onChange={e=>ch("month",e.target.value)}/><In label="Amount" required type="number" value={f.amount} onChange={e=>ch("amount",e.target.value)}/><In label="Payment Date" required type="date" value={f.paymentDate} onChange={e=>ch("paymentDate",e.target.value)}/></div><div className="mt-4"><Area label="Notes" rows="3" value={f.notes} onChange={e=>ch("notes",e.target.value)}/></div><div className="mt-4 p-3 bg-orange-50 rounded-lg text-sm text-orange-800">Saving this salary automatically creates an Expense: <b>Teacher Salary - {f.teacherName||"[Teacher Name]"} - {monthFmt(f.month)}</b></div><Custom fields={cf} setFields={setCf}/><Buttons close={close} text={initial?"Update Salary":"Add Salary"}/></form></Modal>}
+window.firebaseReady.then(()=>{
+  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+}).catch(err=>console.error("Firebase initialization failed:",err));
+</script>
+
+<script>
+(function(){
+  function syncInvoiceVisibility(){
+    const w=document.getElementById("invoiceFeatureWrapper");
+    if(!w)return;
+    const text=document.body.innerText||"";
+    // Fee Collection page is the active page when its heading/content exists.
+    const feeActive=/Fee Collection/i.test(text);
+    w.style.display=feeActive?"block":"none";
+    if(feeActive && window.renderInvoiceStudents) window.renderInvoiceStudents();
+  }
+  const old=window.markInvoiceStudentPaid;
+  window.renderInvoiceStudents=window.renderInvoiceStudents||function(){};
+  new MutationObserver(function(){setTimeout(syncInvoiceVisibility,100)})
+    .observe(document.body,{childList:true,subtree:true});
+  setTimeout(syncInvoiceVisibility,1500);
+})();
+</script>
+</body>
+</html>
